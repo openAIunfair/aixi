@@ -8,8 +8,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
 import math
+import os
 import random
 import sys
 
@@ -30,6 +30,7 @@ nodetype_enum = util.enum('chance', 'decision')
 # Define some short cuts for ease of reference.
 chance_node = nodetype_enum.chance
 decision_node = nodetype_enum.decision
+
 
 class MonteCarloSearchNode:
     """ A class to represent a node in the Monte Carlo search tree.
@@ -94,6 +95,7 @@ class MonteCarloSearchNode:
 
         # The number of times this node has been visited during sampling.
         self.visits = 0
+
     # end def
 
     def sample(self, agent, horizon):
@@ -104,11 +106,37 @@ class MonteCarloSearchNode:
             - `horizon`: how many cycles into the future to sample
         """
 
-        # TODO: implement
         reward = 0.0
 
-        
+        if horizon == 0:
+            # reach the depth and return the final reward
+            return reward
+
+        elif self.type == chance_node:
+            # if the node is chance node
+            observation, r = agent.generate_percept_and_update()
+
+            if observation not in self.children.keys():
+                self.children[observation] = MonteCarloSearchNode(decision_node)
+
+            reward = r + self.sample(agent, horizon - 1)
+
+        elif self.visits == 0:
+            # if the node has not been explored
+            # pick actions through rollout policy and return the sum of reward
+            reward = agent.playout(horizon)
+
+        else:
+
+            action = self.select_action(agent)
+            agent.model_update_action(action)
+            reward = self.sample(agent, horizon)
+
+        self.mean = (reward + 1.0 * self.mean * self.visits) / (self.visits + 1.0)
+        self.visits += 1
+
         return reward
+
     # end def
 
     def select_action(self, agent):
@@ -119,7 +147,38 @@ class MonteCarloSearchNode:
 
         # TODO: implement
         best_action = None
-        
+        max_priority = float('-inf')
+        unexplored_list = list()
+        for action in agent.environment.valid_actions:
+
+            selected_child = self.children[action]
+
+            if selected_child is None or selected_child.visits == 0:
+                # if this selected child has not been explored
+                # a new nod is added to the search tree
+                # current_priority = self.unexplored_bias
+                unexplored_list.append(selected_child)
+            else:
+
+                # UCB policy in Definition 6
+
+                # m is the remaining search horizon
+                m = agent.horizon()
+
+                # each instantaneous reward is bounded in the interval [a,b]
+                interval = agent.maximum_reward()
+
+                # a_ucb(h) = argmax....(Definition 6)
+                current_priority = 1.0 * selected_child / (1.0 * m * interval) + \
+                                   self.exploration_constant * \
+                                   math.sqrt(math.log(self.visits)/selected_child.visits)
+                if current_priority > max_priority:
+                    best_action = action
+                    max_priority = current_priority
+
+        # select action uniformly at random in the unexplored action list.
+        if len(unexplored_list) > 0:
+            return random.choice(unexplored_list)
 
         return best_action
     # end def
