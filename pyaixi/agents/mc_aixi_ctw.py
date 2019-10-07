@@ -229,9 +229,10 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """ Returns an action generated according to the agent's history
             statistics by doing rejection sampling from the context tree.
         """
-
-        # TODO: implement
-        return None
+        
+        binary_action = self.context_tree.generate_random_symbols(self.environment.action_bits())
+        
+        return self.decode_action(binary_action)
     # end def
 
     def generate_percept(self):
@@ -394,7 +395,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         # Use rhoUCT to search for the next action.
 
         # TODO: implement
-
+        
         return best_action
     # end def
 # end class
