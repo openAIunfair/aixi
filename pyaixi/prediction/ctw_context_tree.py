@@ -149,7 +149,8 @@ class CTWContextTreeNode:
         self.symbol_count[symbol]-=1
         self.log_kt = self.log_kt/self.log_kt_multiplier(symbol)
         if symbol in self.children.keys():
-            del self.children[symbol]
+            if self.children[symbol].visits() == 0:
+                del self.children[symbol]
             
         self.update_log_probability()
     # end def
@@ -433,6 +434,9 @@ class CTWContextTree:
         parent = self.root
         
         for i in range(self.depth):
+            if len(self.history) == i:
+                break
+            
             symbol = self.history[-i-1]
             
             if symbol not in parent.children.keys():
