@@ -147,7 +147,7 @@ class CTWContextTreeNode:
             - `symbol`: the symbol used in the previous update.
         """ 
         self.symbol_count[symbol]-=1
-        self.log_kt = self.log_kt/self.log_kt_multiplier(symbol)
+        self.log_kt -= self.log_kt_multiplier(symbol)
         if symbol in self.children.keys():
             if self.children[symbol].visits() == 0:
                 del self.children[symbol]
@@ -169,7 +169,7 @@ class CTWContextTreeNode:
 
             - `symbol`: the symbol that was observed.
         """
-        self.log_kt = self.log_kt*self.log_kt_multiplier(symbol)
+        self.log_kt = self.log_kt+self.log_kt_multiplier(symbol)
         self.symbol_count[symbol]+=1
         self.update_log_probability()
         
