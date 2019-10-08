@@ -239,10 +239,10 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """ Returns a percept (an observation, reward pair) distributed according to the agent's history
             statistics by sampling from the context tree.
         """
+        
+        binary_percept = self.context_tree.generate_random_symbols(self.environment.percept_bits())
 
-        # TODO: implement
-
-        return None
+        return self.decode_percept(binary_percept)
     # end def
 
     def generate_percept_and_update(self):
@@ -250,8 +250,14 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             statistics, after updating the context tree with it.
         """
 
-        # TODO: implement
-        return None
+        binary_percept = self.context_tree.generate_random_symbols_and_update(self.environment.percept_bits())
+        
+        observation, reward = self.decode_percept(binary_percept)
+        
+        self.total_reward += reward
+        self.last_update = agent.percept_update
+        
+        return (observation, reward)
     # end def
 
     def get_predicted_action_probability(self, action):
@@ -260,7 +266,10 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
             - `action`: the action we wish to find the likelihood of.
         """
-        # TODO: implement
+        
+        binary_action = self.encode_action(action)
+        
+        return self.context_tree.predict(binary_action)
     # end def
 
     def history_size(self):
@@ -282,8 +291,14 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """ Revert the agent's internal model of the world to that of a previous time cycle,
             using the given undo class instance.
         """
-
-        # TODO: implement
+        
+        revert_size = self.history_size-undo_instance.history_size
+        
+        self.age = undo_instance.age
+        self.total_reward = undo_instance.total_reward
+        self.last_update = undo_instance.last_update
+        
+        self.context_tree.revert(revert_size)
     # end def
 
     def model_size(self):
@@ -356,8 +371,9 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `reward`: the reward part of the percept we wish to find the likelihood of.
         """
 
-        # TODO: implement
-        return None
+        binary_percept = self.encode_percept(observation, reward)
+    
+        return self.context_tree.predict(binary_percept)
     # end def
 
     def playout(self, horizon):
