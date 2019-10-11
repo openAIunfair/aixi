@@ -45,6 +45,8 @@ class MC_AIXI_CTW_Undo:
         self.history_size = agent.history_size()
         self.last_update = agent.last_update
     # end def
+
+
 # end class
 
 
@@ -103,7 +105,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
     # Instance methods.
 
-    def __init__(self, environment = None, options = {}):
+    def __init__(self, environment=None, options=None):
         """ Construct a MC-AIXI-CTW learning agent from the given configuration values and the environment.
 
              - `environment` is an instance of the pyaixi.Environment class that the agent with interact with.
@@ -119,13 +121,16 @@ class MC_AIXI_CTW_Agent(agent.Agent):
                                   Defaults to '0', which is indefinite learning.
         """
 
-        # Set up the base agent options, which handles getting and setting the learning period, amongst other basic values.
-        agent.Agent.__init__(self, environment = environment, options = options)
+        # Set up the base agent options, which handles getting and setting the learning period, amongst other basic
+        # values.
+        agent.Agent.__init__(self, environment=environment, options=options)
 
         # The agent's context tree depth.
         # Retrieved from the given options under 'ct-depth'. Mandatory.
+        if options is None:
+            options = {}
         assert 'ct-depth' in options, \
-               "The required 'ct-depth' context tree depth option is missing from the given options."
+            "The required 'ct-depth' context tree depth option is missing from the given options."
         self.depth = int(options['ct-depth'])
 
         # (CTW) Context tree representing the agent's model of the environment.
@@ -135,16 +140,17 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         # The length of the agent's planning horizon.
         # Retrieved from the given options under 'agent-horizon'. Mandatory.
         assert 'agent-horizon' in options, \
-               "The required 'agent-horizon' search horizon option is missing from the given options."
+            "The required 'agent-horizon' search horizon option is missing from the given options."
         self.horizon = int(options['agent-horizon'])
 
         # The number of simulations to conduct when choosing new actions via the UCT algorithm.
         # Retrieved from the given options under 'mc-simulations'. Mandatory.
         assert 'mc-simulations' in options, \
-               "The required 'mc-simulations' Monte Carlo simulations count option is missing from the given options."
+            "The required 'mc-simulations' Monte Carlo simulations count option is missing from the given options."
         self.mc_simulations = int(options['mc-simulations'])
 
         self.reset()
+
     # end def
 
     def decode_action(self, symbol_list):
@@ -154,6 +160,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return util.decode(symbol_list, self.environment.action_bits())
+
     # end def
 
     def decode_observation(self, symbol_list):
@@ -163,6 +170,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return util.decode(symbol_list, self.environment.observation_bits())
+
     # end def
 
     def decode_reward(self, symbol_list):
@@ -172,6 +180,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return util.decode(symbol_list, self.environment.reward_bits())
+
     # end def
 
     def decode_percept(self, symbol_list):
@@ -185,20 +194,21 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         reward_bits = self.environment.reward_bits()
         observation_bits = self.environment.observation_bits()
 
-        assert len(symbol_list) >= (reward_bits + observation_bits),\
-               "The given symbol list isn't long enough to contain a percept."
+        assert len(symbol_list) >= (reward_bits + observation_bits), \
+            "The given symbol list isn't long enough to contain a percept."
 
         # Get the reward symbols from the given symbol list, starting with the
         # reward, then getting the observation from the list after that.
-        reward_symbols      = symbol_list[:reward_bits]
+        reward_symbols = symbol_list[:reward_bits]
         observation_symbols = symbol_list[reward_bits:(reward_bits + observation_bits)]
 
         # Decode the obtained symbols.
-        reward      = self.decode_reward(reward_symbols)
+        reward = self.decode_reward(reward_symbols)
         observation = self.decode_observation(observation_symbols)
 
         # Return the decoded percept as a tuple of observation and reward.
-        return (observation, reward)
+        return observation, reward
+
     # end def
 
     def encode_action(self, action):
@@ -208,6 +218,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return util.encode(action, self.environment.action_bits())
+
     # end def
 
     def encode_percept(self, observation, reward):
@@ -223,26 +234,29 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         # Return the generated list.
         return symbol_list
+
     # end def
 
     def generate_action(self):
         """ Returns an action generated according to the agent's history
             statistics by doing rejection sampling from the context tree.
         """
-        
+
         binary_action = self.context_tree.generate_random_symbols(self.environment.action_bits())
-        
+
         return self.decode_action(binary_action)
+
     # end def
 
     def generate_percept(self):
         """ Returns a percept (an observation, reward pair) distributed according to the agent's history
             statistics by sampling from the context tree.
         """
-        
+
         binary_percept = self.context_tree.generate_random_symbols(self.environment.percept_bits())
 
         return self.decode_percept(binary_percept)
+
     # end def
 
     def generate_percept_and_update(self):
@@ -251,13 +265,14 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         binary_percept = self.context_tree.generate_random_symbols_and_update(self.environment.percept_bits())
-        
+
         observation, reward = self.decode_percept(binary_percept)
-        
+
         self.total_reward += reward
         self.last_update = agent.percept_update
-        
-        return (observation, reward)
+
+        return observation, reward
+
     # end def
 
     def get_predicted_action_probability(self, action):
@@ -266,10 +281,11 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
             - `action`: the action we wish to find the likelihood of.
         """
-        
+
         binary_action = self.encode_action(action)
-        
+
         return self.context_tree.predict(binary_action)
+
     # end def
 
     def history_size(self):
@@ -277,6 +293,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return len(self.context_tree.history)
+
     # end def
 
     def maximum_bits_needed(self):
@@ -285,26 +302,29 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return max(self.environment.action_bits(), self.environment.percept_bits())
+
     # end def
 
     def model_revert(self, undo_instance):
         """ Revert the agent's internal model of the world to that of a previous time cycle,
             using the given undo class instance.
         """
-        
-        revert_size = self.history_size-undo_instance.history_size
-        
+
+        revert_size = self.history_size() - undo_instance.history_size
+
         self.age = undo_instance.age
         self.total_reward = undo_instance.total_reward
         self.last_update = undo_instance.last_update
-        
+
         self.context_tree.revert(revert_size)
+
     # end def
 
     def model_size(self):
         """ Returns the size of the agent's model.
         """
         return self.context_tree.size()
+
     # end def
 
     def model_update_action(self, action):
@@ -325,11 +345,12 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         action_symbols = self.encode_action(action)
 
         # Update the context tree.
-        self.context_tree.update_history(action_symbols);
+        self.context_tree.update(action_symbols)
 
         # Update other properties.
-        self.age += 1;
+        self.age += 1
         self.last_update = action_update
+
     # end def
 
     def model_update_percept(self, observation, reward):
@@ -346,12 +367,11 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         # Update the internal model after performing a percept.
 
         # Get the symbols that represent this percept from the given observation and reward.
-        print(observation)
-        print(reward)
         percept_symbols = self.encode_percept(observation, reward)
 
         # Are we still meant to be learning?
-        if ((self.learning_period > 0) and (self.age > self.learning_period)):
+        print(self.learning_period)
+        if (self.learning_period > 0) and (self.age > self.learning_period):
             # No. Update, but don't learn.
             self.context_tree.update_history(percept_symbols)
         else:
@@ -362,6 +382,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         # Update other properties.
         self.total_reward += reward
         self.last_update = percept_update
+
     # end def
 
     def percept_probability(self, observation, reward):
@@ -374,8 +395,9 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         binary_percept = self.encode_percept(observation, reward)
-    
+
         return self.context_tree.predict(binary_percept)
+
     # end def
 
     def playout(self, horizon):
@@ -388,7 +410,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `horizon`: the number of complete action/percept steps
                          (the search horizon) to simulate.
         """
-        
+
         self.total_reward = 0
 
         for i in range(horizon):
@@ -400,6 +422,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             self.total_reward += reward
 
         return self.total_reward
+
     # end def
 
     def reset(self):
@@ -411,6 +434,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         # Reset the basic agent details.
         agent.Agent.reset(self)
+
     # end def
 
     def search(self):
@@ -422,7 +446,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         undo_instance = MC_AIXI_CTW_Undo(self)
 
-        mc_search_tree = monte_carlo_search_tree(decision_node)
+        mc_search_tree = monte_carlo_search_tree.MonteCarloSearchNode(decision_node)
 
         for i in range(self.mc_simulations):
             mc_search_tree.sample(self, self.horizon)
@@ -431,7 +455,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         best_action = None
         best_mean = None
 
-        for action, node in mc_search_tree.children.keys():
+        for action, node in mc_search_tree.children.items():
             if not action:
                 best_action = action
             elif node.mean >= best_mean:

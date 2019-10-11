@@ -145,21 +145,19 @@ class MonteCarloSearchNode:
              - `agent`: the agent which is doing the sampling.
         """
 
-
         best_action = None
         max_priority = float('-inf')
         unexplored_list = list()
         for action in agent.environment.valid_actions:
 
-            selected_child = self.children[action]
-
-            if selected_child is None or selected_child.visits == 0:
+            if action not in self.children.keys() or self.children[action].visits == 0:
                 # if this selected child has not been explored
                 # a new nod is added to the search tree
                 # current_priority = self.unexplored_bias
-                unexplored_list.append(selected_child)
+                unexplored_list.append(action)
             else:
 
+                selected_child = self.children[action]
                 # UCB policy in Definition 6
 
                 # m is the remaining search horizon
@@ -171,7 +169,7 @@ class MonteCarloSearchNode:
                 # a_ucb(h) = argmax....(Definition 6)
                 current_priority = 1.0 * selected_child / (1.0 * m * interval) + \
                                    self.exploration_constant * \
-                                   math.sqrt(math.log(self.visits)/selected_child.visits)
+                                   math.sqrt(math.log(self.visits) / selected_child.visits)
                 if current_priority > max_priority:
                     best_action = action
                     max_priority = current_priority

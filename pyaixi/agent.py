@@ -20,6 +20,7 @@ update_enum = util.enum('action_update', 'percept_update')
 action_update = update_enum.action_update
 percept_update = update_enum.percept_update
 
+
 class Agent:
     """ This base class represents the minimum class elements for a AIXI-style agent.
 
@@ -43,7 +44,7 @@ class Agent:
 
     # Instance methods.
 
-    def __init__(self, environment = None, options = {}):
+    def __init__(self, environment=None, options=None):
         """ Construct an AIXI-style learning agent from the given configuration values and the environment.
 
              - `environment` is an instance of the pyaixi.Environment class that the agent with interact with.
@@ -56,6 +57,8 @@ class Agent:
 
         # The number of interaction cycles the agent has been alive.
         # Set initially to 0.
+        if options is None:
+            options = {}
         self.age = 0
 
         # A reference to the environment the agent interacts with.
@@ -77,6 +80,7 @@ class Agent:
         # The total reward earnt by this agent so far.
         # Set initially to 0.
         self.total_reward = 0
+
     # end def
 
     def average_reward(self):
@@ -91,6 +95,7 @@ class Agent:
         else:
             return 0.0
         # end if
+
     # end def
 
     def generate_random_action(self):
@@ -98,6 +103,7 @@ class Agent:
         """
 
         return util.choice(self.environment.valid_actions)
+
     # end def
 
     def maximum_action(self):
@@ -110,6 +116,7 @@ class Agent:
         else:
             return None
         # end if
+
     # end def
 
     def maximum_reward(self):
@@ -122,6 +129,7 @@ class Agent:
         else:
             return None
         # end if
+
     # end def
 
     def model_size(self):
@@ -130,6 +138,7 @@ class Agent:
             WARNING: this method should be overriden by inheriting classes.
         """
         return 0
+
     # end def
 
     def model_update_action(self, action):
@@ -141,6 +150,7 @@ class Agent:
             WARNING: this method should be overriden by inheriting classes.
         """
         pass
+
     # end def
 
     def model_update_percept(self, observation, reward):
@@ -153,6 +163,7 @@ class Agent:
             WARNING: this method should be overriden by inheriting classes.
         """
         pass
+
     # end def
 
     def search(self):
@@ -160,6 +171,7 @@ class Agent:
         """
 
         return self.maximum_action()
+
     # end def
 
     def reset(self):
