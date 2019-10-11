@@ -99,7 +99,7 @@ class CTWContextTreeNode:
 
         # The cached KT estimate of the block log probability for this node.
         # This value is computed only when the node is changed by the update or revert methods.
-        self.log_kt = 1
+        self.log_kt = 0
 
         # The cached weighted log probability for this node.
         # This value is computed only when the node is changed by the update or revert methods.

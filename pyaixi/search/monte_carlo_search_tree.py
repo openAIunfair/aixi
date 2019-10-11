@@ -123,7 +123,7 @@ class MonteCarloSearchNode:
 
         elif self.visits == 0:
             # if the node has not been explored
-            # pick actions through rollout policy and return the sum of reward
+            # pick actions through roll out policy and return the sum of reward
             reward = agent.playout(horizon)
 
         else:

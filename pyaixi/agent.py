@@ -11,7 +11,7 @@ from __future__ import unicode_literals
 import copy
 import random
 
-import util
+from . import util
 
 # Define a enumeration to represent what type of environment update has been performed.
 update_enum = util.enum('action_update', 'percept_update')

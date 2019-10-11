@@ -218,7 +218,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         # Add first the encoded reward, then the encoded observation to the list of output symbols.
-        symbol_list  = util.encode(reward, self.environment.reward_bits())
+        symbol_list = util.encode(reward, self.environment.reward_bits())
         symbol_list += util.encode(observation, self.environment.observation_bits())
 
         # Return the generated list.
@@ -346,6 +346,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         # Update the internal model after performing a percept.
 
         # Get the symbols that represent this percept from the given observation and reward.
+        print(observation)
+        print(reward)
         percept_symbols = self.encode_percept(observation, reward)
 
         # Are we still meant to be learning?
@@ -386,10 +388,18 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `horizon`: the number of complete action/percept steps
                          (the search horizon) to simulate.
         """
+        
+        self.total_reward = 0
 
-        # TODO: implement
+        for i in range(horizon):
+            action = self.generate_action()
+            self.model_update_action(action)
 
-        return 0.0
+            _, reward = self.generate_percept_and_update()
+
+            self.total_reward += reward
+
+        return self.total_reward
     # end def
 
     def reset(self):
@@ -410,8 +420,24 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         # Use rhoUCT to search for the next action.
 
-        # TODO: implement
-        
+        undo_instance = MC_AIXI_CTW_Undo(self)
+
+        mc_search_tree = monte_carlo_search_tree(decision_node)
+
+        for i in range(self.mc_simulations):
+            mc_search_tree.sample(self, self.horizon)
+            self.model_revert(undo_instance)
+
+        best_action = None
+        best_mean = None
+
+        for action, node in mc_search_tree.children.keys():
+            if not action:
+                best_action = action
+            elif node.mean >= best_mean:
+                best_action = action
+                best_mean = node.mean
+
         return best_action
     # end def
 # end class
