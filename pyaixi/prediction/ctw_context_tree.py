@@ -449,7 +449,7 @@ class CTWContextTree:
             self.update_context()
 
             assert len(self.context)-1 <= len(self.history), "History size should be greater than context size"
-            assert len(self.context) <= self.depth, "context size should be smaller or equal to depth"
+            assert len(self.context)-1 <= self.depth, "context size should be smaller or equal to depth"
 
             for node in reversed(self.context):
                 node.update(symbol)

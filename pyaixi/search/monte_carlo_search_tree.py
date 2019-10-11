@@ -119,7 +119,7 @@ class MonteCarloSearchNode:
             if observation not in self.children.keys():
                 self.children[observation] = MonteCarloSearchNode(decision_node)
 
-            reward = r + self.sample(agent, horizon - 1)
+            reward = r + self.children[observation].sample(agent, horizon - 1)
 
         elif self.visits == 0:
             # if the node has not been explored
@@ -130,7 +130,11 @@ class MonteCarloSearchNode:
 
             action = self.select_action(agent)
             agent.model_update_action(action)
-            reward = self.sample(agent, horizon)
+
+            if action not in self.children.keys():
+                self.children[action] = MonteCarloSearchNode(chance_node)
+
+            reward = self.children[action].sample(agent, horizon)
 
         self.mean = (reward + 1.0 * self.mean * self.visits) / (self.visits + 1.0)
         self.visits += 1
@@ -161,15 +165,16 @@ class MonteCarloSearchNode:
                 # UCB policy in Definition 6
 
                 # m is the remaining search horizon
-                m = agent.horizon()
+                m = agent.horizon
 
                 # each instantaneous reward is bounded in the interval [a,b]
                 interval = agent.maximum_reward()
 
                 # a_ucb(h) = argmax....(Definition 6)
-                current_priority = 1.0 * selected_child / (1.0 * m * interval) + \
+                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + \
                                    self.exploration_constant * \
                                    math.sqrt(math.log(self.visits) / selected_child.visits)
+
                 if current_priority > max_priority:
                     best_action = action
                     max_priority = current_priority

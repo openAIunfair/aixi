@@ -264,12 +264,14 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             statistics, after updating the context tree with it.
         """
 
+        assert self.last_update == action_update, "Can only perform an percept update after an action update"
+
         binary_percept = self.context_tree.generate_random_symbols_and_update(self.environment.percept_bits())
 
         observation, reward = self.decode_percept(binary_percept)
 
         self.total_reward += reward
-        self.last_update = agent.percept_update
+        self.last_update = percept_update
 
         return observation, reward
 
@@ -456,8 +458,9 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         best_mean = None
 
         for action, node in mc_search_tree.children.items():
-            if not action:
+            if not best_action:
                 best_action = action
+                best_mean = node.mean
             elif node.mean >= best_mean:
                 best_action = action
                 best_mean = node.mean
