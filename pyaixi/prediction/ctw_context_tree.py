@@ -223,7 +223,7 @@ class CTWContextTreeNode:
         if not self.children:
             self.log_probability = self.log_kt
         else:
-            child_sum = math.fsum([child.log_probability for child in self.children.values()])
+            child_sum = sum([child.log_probability for child in self.children.values()])
 
             if child_sum <= self.log_kt:
                 self.log_probability = log_half + self.log_kt + math.log(1 + math.exp(child_sum - self.log_kt))
