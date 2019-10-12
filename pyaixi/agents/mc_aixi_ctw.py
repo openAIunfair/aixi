@@ -242,6 +242,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             statistics by doing rejection sampling from the context tree.
         """
 
+        assert self.last_update == percept_update, "An action after a percept"
+
         binary_action = self.context_tree.generate_random_symbols(self.environment.action_bits())
 
         return self.decode_action(binary_action)
@@ -252,6 +254,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """ Returns a percept (an observation, reward pair) distributed according to the agent's history
             statistics by sampling from the context tree.
         """
+
+        assert self.last_update == action_update, "A percept after an action"
 
         binary_percept = self.context_tree.generate_random_symbols(self.environment.percept_bits())
 
@@ -372,7 +376,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         percept_symbols = self.encode_percept(observation, reward)
 
         # Are we still meant to be learning?
-        print(self.learning_period)
         if (self.learning_period > 0) and (self.age > self.learning_period):
             # No. Update, but don't learn.
             self.context_tree.update_history(percept_symbols)
@@ -395,6 +398,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
             - `reward`: the reward part of the percept we wish to find the likelihood of.
         """
+
+        assert self.last_update == action_update, "Percept after action"
 
         binary_percept = self.encode_percept(observation, reward)
 
@@ -458,7 +463,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         best_mean = None
 
         for action, node in mc_search_tree.children.items():
-            if not best_action:
+            if best_action is None:
                 best_action = action
                 best_mean = node.mean
             elif node.mean >= best_mean:

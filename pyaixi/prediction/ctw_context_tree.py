@@ -157,6 +157,7 @@ class CTWContextTreeNode:
         self.log_kt -= self.log_kt_multiplier(symbol)
         if symbol in self.children.keys():
             if self.children[symbol].visits() == 0:
+                self.tree.tree_size -= self.children[symbol].size()
                 del self.children[symbol]
 
         self.update_log_probability()
@@ -179,8 +180,8 @@ class CTWContextTreeNode:
             - `symbol`: the symbol that was observed.
         """
         self.log_kt += self.log_kt_multiplier(symbol)
-        self.symbol_count[symbol] += 1
         self.update_log_probability()
+        self.symbol_count[symbol] += 1
 
     # end def
 
@@ -222,7 +223,7 @@ class CTWContextTreeNode:
         if not self.children:
             self.log_probability = self.log_kt
         else:
-            child_sum = sum([child.log_probability for child in self.children.values()])
+            child_sum = math.fsum([child.log_probability for child in self.children.values()])
 
             if child_sum <= self.log_kt:
                 self.log_probability = log_half + self.log_kt + math.log(1 + math.exp(child_sum - self.log_kt))
@@ -353,9 +354,12 @@ class CTWContextTree:
         symbol_list = []
 
         for i in range(symbol_count):
+            #assert 0.99 <= self.predict([0])+self.predict([1]) <= 1.01, "Pro sum should be equal to 1"
+            
+            
             threshold = self.predict([0])
-
-            symbol = 1 if random.random() > threshold else 0
+            
+            symbol = 0 if random.random() <= threshold else 1
 
             symbol_list.append(symbol)
             self.update([symbol])
@@ -414,16 +418,16 @@ class CTWContextTree:
 
     # end def
 
-    # def revert_history(self, symbol_count=1):
-    #     """ Shrinks the history without affecting the context tree.
-    #     """
-    #
-    #     assert symbol_count > 0, "The given symbol count should be greater than 0."
-    #     history_length = len(self.history)
-    #     assert history_length >= symbol_count, "The given symbol count must be greater than the history length."
-    #
-    #     new_size = history_length - symbol_count
-    #     self.history = self.history[:new_size]
+    def revert_history(self, symbol_count=1):
+        """ Shrinks the history without affecting the context tree.
+        """
+
+        assert symbol_count > 0, "The given symbol count should be greater than 0."
+        history_length = len(self.history)
+        assert history_length >= symbol_count, "The given symbol count must be greater than the history length."
+
+        new_size = history_length - symbol_count
+        self.history = self.history[:new_size]
 
     # end def
 
@@ -445,7 +449,6 @@ class CTWContextTree:
         """
 
         for symbol in symbol_list:
-
             self.update_context()
 
             assert len(self.context)-1 <= len(self.history), "History size should be greater than context size"
