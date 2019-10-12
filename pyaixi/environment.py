@@ -85,7 +85,6 @@ class Environment:
 
     def action_bits(self):
         """ Returns the maximum number of bits required to represent an action.
-            (Called `actionBits` in the C++ version.)
         """
 
         # Find the largest sized observation.
@@ -102,28 +101,24 @@ class Environment:
 
     def is_valid_action(self, action):
         """ Returns whether the given action is valid.
-            (Called `isValidAction` in the C++ version.)
         """
         return action in self.valid_actions
     # end def
 
     def is_valid_observation(self, observation):
         """ Returns whether the given observation is valid.
-            (Called `isValidObservation` in the C++ version.)
         """
         return observation in self.valid_observations
     # end def
 
     def is_valid_reward(self, reward):
         """ Returns whether the given reward is valid.
-            (Called `isValidReward` in the C++ version.)
         """
         return reward in self.valid_rewards
     # end def
 
     def maximum_action(self):
         """ Returns the maximum possible action.
-            (Called `maxAction` in the C++ version.)
         """
 
         # The largest action is the last in the list of valid actions.
@@ -133,7 +128,6 @@ class Environment:
 
     def maximum_observation(self):
         """ Returns the maximum possible observation.
-            (Called `maxObservation` in the C++ version.)
         """
 
         # The largest observation is the last in the list of valid observations.
@@ -143,7 +137,6 @@ class Environment:
 
     def maximum_reward(self):
         """ Returns the maximum possible reward.
-            (Called `maxReward` in the C++ version.)
         """
 
         # The largest reward is the last in the list of valid rewards.
@@ -153,7 +146,6 @@ class Environment:
 
     def minimum_action(self):
         """ Returns the minimum possible action.
-            (Called `minAction` in the C++ version.)
         """
 
         # The smallest action is the first in the list of valid actions.
@@ -163,7 +155,6 @@ class Environment:
 
     def minimum_observation(self):
         """ Returns the minimum possible observation.
-            (Called `minObservation` in the C++ version.)
         """
 
         # The smallest observation is the first in the list of valid observations.
@@ -173,7 +164,6 @@ class Environment:
 
     def minimum_reward(self):
         """ Returns the minimum possible reward.
-            (Called `minReward` in the C++ version.)
         """
 
         # The smallest reward is the first in the list of valid rewards.
@@ -183,7 +173,6 @@ class Environment:
 
     def observation_bits(self):
         """ Returns the maximum number of bits required to represent an observation.
-            (Called `observationBits` in the C++ version)
         """
 
         # Find the largest sized observation.
@@ -200,7 +189,6 @@ class Environment:
 
     def percept_bits(self):
         """ Returns the maximum number of bits required to represent a percept.
-            (Called `perceptBits` in the C++ version.)
         """
 
         return self.observation_bits() + self.reward_bits()
@@ -208,7 +196,6 @@ class Environment:
 
     def perform_action(self, action):
         """ Receives the agent's action and calculates the new environment percept.
-            (Called `performAction` in the C++ version.)
         """
         # To be overriden by inheriting classes.
         pass
@@ -222,7 +209,6 @@ class Environment:
 
     def reward_bits(self):
         """ Returns the maximum number of bits required to represent a reward.
-            (Called `rewardBits` in the C++ version)
         """
 
         # Find the largest sized reward.
