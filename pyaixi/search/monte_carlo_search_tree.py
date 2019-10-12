@@ -119,18 +119,22 @@ class MonteCarloSearchNode:
             if observation not in self.children.keys():
                 self.children[observation] = MonteCarloSearchNode(decision_node)
 
-            reward = r + self.sample(agent, horizon - 1)
+            reward = r + self.children[observation].sample(agent, horizon - 1)
 
         elif self.visits == 0:
             # if the node has not been explored
-            # pick actions through rollout policy and return the sum of reward
+            # pick actions through roll out policy and return the sum of reward
             reward = agent.playout(horizon)
 
         else:
 
             action = self.select_action(agent)
             agent.model_update_action(action)
-            reward = self.sample(agent, horizon)
+
+            if action not in self.children.keys():
+                self.children[action] = MonteCarloSearchNode(chance_node)
+
+            reward = self.children[action].sample(agent, horizon)
 
         self.mean = (reward + 1.0 * self.mean * self.visits) / (self.visits + 1.0)
         self.visits += 1
@@ -145,33 +149,32 @@ class MonteCarloSearchNode:
              - `agent`: the agent which is doing the sampling.
         """
 
-
         best_action = None
         max_priority = float('-inf')
         unexplored_list = list()
         for action in agent.environment.valid_actions:
 
-            selected_child = self.children[action]
-
-            if selected_child is None or selected_child.visits == 0:
+            if action not in self.children.keys() or self.children[action].visits == 0:
                 # if this selected child has not been explored
                 # a new nod is added to the search tree
                 # current_priority = self.unexplored_bias
-                unexplored_list.append(selected_child)
+                unexplored_list.append(action)
             else:
 
+                selected_child = self.children[action]
                 # UCB policy in Definition 6
 
                 # m is the remaining search horizon
-                m = agent.horizon()
+                m = agent.horizon
 
                 # each instantaneous reward is bounded in the interval [a,b]
                 interval = agent.maximum_reward()
 
                 # a_ucb(h) = argmax....(Definition 6)
-                current_priority = 1.0 * selected_child / (1.0 * m * interval) + \
+                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + \
                                    self.exploration_constant * \
-                                   math.sqrt(math.log(self.visits)/selected_child.visits)
+                                   math.sqrt(math.log(self.visits) / selected_child.visits)
+
                 if current_priority > max_priority:
                     best_action = action
                     max_priority = current_priority

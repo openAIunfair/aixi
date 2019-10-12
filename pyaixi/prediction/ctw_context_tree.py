@@ -18,6 +18,7 @@ from six.moves import xrange
 # This value is used often in computations and so is made a constant for efficiency reasons.
 log_half = math.log(0.5)
 
+
 class CTWContextTreeNode:
     """ The CTWContextTreeNode class represents a node in an action-conditional context tree.
 
@@ -87,7 +88,7 @@ class CTWContextTreeNode:
 
     # Instance methods.
 
-    def __init__(self, tree = None):
+    def __init__(self, tree=None):
         """ Construct a node of the context tree.
         """
 
@@ -99,7 +100,7 @@ class CTWContextTreeNode:
 
         # The cached KT estimate of the block log probability for this node.
         # This value is computed only when the node is changed by the update or revert methods.
-        self.log_kt = 1
+        self.log_kt = 0
 
         # The cached weighted log probability for this node.
         # This value is computed only when the node is changed by the update or revert methods.
@@ -107,6 +108,7 @@ class CTWContextTreeNode:
 
         # The count of the symbols in the history subsequence relevant to this node.
         self.symbol_count = {0: 0, 1: 0}
+
     # end def
 
     def is_leaf_node(self):
@@ -115,6 +117,7 @@ class CTWContextTreeNode:
 
         # If this node has no children, it's a leaf node.
         return self.children == {}
+
     # end def
 
     def log_kt_multiplier(self, symbol):
@@ -127,7 +130,7 @@ class CTWContextTreeNode:
 
            Similarly, the estimate of the conditional probability of observing a one is
 
-             log(\Pr_kt(1 |0^a 1^b)) = log((b + 1/2)/(a + b + 1))
+             log(Pr_kt(1 |0^a 1^b)) = log((b + 1/2)/(a + b + 1))
 
            - `symbol`: the symbol for which to calculate the log KT estimate of
              conditional probability.
@@ -136,7 +139,8 @@ class CTWContextTreeNode:
              1 corresponds to calculating `log(Pr_kt(1 | 0^a 1^b)`.
         """
 
-        return math.log((self.symbol_count[symbol]+0.5)/(self.visits()+1))
+        return math.log((self.symbol_count[symbol] + 0.5) / (self.visits() + 1))
+
     # end def
 
     def revert(self, symbol):
@@ -145,14 +149,19 @@ class CTWContextTreeNode:
             probabilities, and deleting unnecessary child nodes.
 
             - `symbol`: the symbol used in the previous update.
-        """ 
-        self.symbol_count[symbol]-=1
-        self.log_kt = self.log_kt/self.log_kt_multiplier(symbol)
+        """
+        self.symbol_count[symbol] -= 1
+
+        assert self.symbol_count[symbol] >= 0,  "Symbol count should be non-negative"
+
+        self.log_kt -= self.log_kt_multiplier(symbol)
         if symbol in self.children.keys():
             if self.children[symbol].visits() == 0:
+                self.tree.tree_size -= self.children[symbol].size()
                 del self.children[symbol]
-            
+
         self.update_log_probability()
+
     # end def
 
     def size(self):
@@ -161,6 +170,7 @@ class CTWContextTreeNode:
 
         # Iterate over the direct children of this node, collecting the size of each sub-tree.
         return 1 + sum([child.size() for child in self.children.values()])
+
     # end def
 
     def update(self, symbol):
@@ -169,10 +179,10 @@ class CTWContextTreeNode:
 
             - `symbol`: the symbol that was observed.
         """
-        self.log_kt = self.log_kt*self.log_kt_multiplier(symbol)
-        self.symbol_count[symbol]+=1
+        self.log_kt += self.log_kt_multiplier(symbol)
         self.update_log_probability()
-        
+        self.symbol_count[symbol] += 1
+
     # end def
 
     def update_log_probability(self):
@@ -209,16 +219,17 @@ class CTWContextTreeNode:
             In order to avoid overflow problems, we choose the formulation for which
             the argument of the exponent `exp(log(b) - log(a))` is as small as possible.
         """
-        
+
         if not self.children:
             self.log_probability = self.log_kt
         else:
-            child_sum = math.fsum([child.log_probility for child in self.children.values()])
-            
+            child_sum = sum([child.log_probability for child in self.children.values()])
+
             if child_sum <= self.log_kt:
-                self.log_probability = log_half+self.log_kt+math.log(1+child_sum-self.log_kt)
+                self.log_probability = log_half + self.log_kt + math.log(1 + math.exp(child_sum - self.log_kt))
             else:
-                self.log_probability = log_half+child_sum+math.log(1+self.log_kt-child_sum)
+                self.log_probability = log_half + child_sum + math.log(1 + math.exp(self.log_kt - child_sum))
+
     # end def
 
     def visits(self):
@@ -228,6 +239,18 @@ class CTWContextTreeNode:
 
         return self.symbol_count[0] + self.symbol_count[1]
     # end def
+
+    def show(self):
+        symbols = '0:'+str(self.symbol_count[0])+'  1:'+str(self.symbol_count[1])
+        childrens = ""
+
+        for symbol, child in self.children.items():
+            childrens += str(symbol) + child.show()+','
+
+        childrens = childrens
+
+        return '{'+symbols+'||'+childrens+'}'
+
 # end class
 
 
@@ -282,10 +305,11 @@ class CTWContextTree:
         self.history = []
 
         # The root node of the context tree.
-        self.root = CTWContextTreeNode(tree = self)
+        self.root = CTWContextTreeNode(tree=self)
 
         # The size of this tree.
         self.tree_size = 1
+
     # end def
 
     def clear(self):
@@ -298,11 +322,12 @@ class CTWContextTree:
         # Set a new root object, and reset the tree size.
         self.root.tree = None
         del self.root
-        self.root = CTWContextTreeNode(tree = self)
+        self.root = CTWContextTreeNode(tree=self)
         self.tree_size = 1
 
         # Reset the context.
         self.context = []
+
     # end def
 
     def generate_random_symbols(self, symbol_count):
@@ -311,9 +336,11 @@ class CTWContextTree:
             - `symbol_count`: the number of symbols to generate.
         """
         symbol_list = self.generate_random_symbols_and_update(symbol_count)
+
         self.revert(symbol_count)
 
         return symbol_list
+
     # end def
 
     def generate_random_symbols_and_update(self, symbol_count):
@@ -323,18 +350,22 @@ class CTWContextTree:
 
             - `symbol_count`: the number of symbols to generate.
         """
-        
+
         symbol_list = []
-        
+
         for i in range(symbol_count):
-            threshold = self.predict(0)
+            #assert 0.99 <= self.predict([0])+self.predict([1]) <= 1.01, "Pro sum should be equal to 1"
             
-            symbol = 1 if random.random > threshold else 0
             
+            threshold = self.predict([0])
+            
+            symbol = 0 if random.random() <= threshold else 1
+
             symbol_list.append(symbol)
             self.update([symbol])
 
         return symbol_list
+
     # end def
 
     def predict(self, symbol_list):
@@ -351,39 +382,43 @@ class CTWContextTree:
                             0 corresponds to `rho(0 | h)` and 1 to `rho(1 | h)`.
         """
 
-        probability = 1
-        
+        probability = 0
+
         for symbol in symbol_list:
             rho_h = self.root.log_probability
-            self.update(symbol)
+            self.update([symbol])
             rho_hy = self.root.log_probability
-            
-            probability *= rho_hy/rho_h
-        
-        self.revert(symbol_list)
-        return probability
+
+            probability += rho_hy - rho_h
+
+        self.revert(len(symbol_list))
+
+        return math.exp(probability)
+
     # end def
 
-    def revert(self, symbol_count = 1):
+    def revert(self, symbol_count=1):
         """ Restores the context tree to its state prior to a specified number of updates.
      
             - `num_symbols`: the number of updates (symbols) to revert. (Default of 1.)
         """
-        
+
         assert symbol_count >= 0, "The given symbol count should be greater than 0"
-        
+
         for i in range(symbol_count):
             symbol = self.history[-1]
             self.history = self.history[:-1]
-        
+
             self.update_context()
-            for node in reversed(self.context()):
+
+            for node in reversed(self.context):
                 node.revert(symbol)
-                
-            self.revert_history()
+
+            #self.revert_history()
+
     # end def
 
-    def revert_history(self, symbol_count = 1):
+    def revert_history(self, symbol_count=1):
         """ Shrinks the history without affecting the context tree.
         """
 
@@ -393,6 +428,7 @@ class CTWContextTree:
 
         new_size = history_length - symbol_count
         self.history = self.history[:new_size]
+
     # end def
 
     def size(self):
@@ -401,6 +437,7 @@ class CTWContextTree:
 
         # Return the value stored and updated by the children nodes.
         return self.tree_size
+
     # end def
 
     def update(self, symbol_list):
@@ -410,15 +447,18 @@ class CTWContextTree:
             - `symbol_list`: the symbol (or list of symbols) with which to update the tree.
                               (The context tree is updated with symbols in the order they appear in the list.)
         """
-        
+
         for symbol in symbol_list:
             self.update_context()
-            
-            for i in range(self.depth):
-                
-                self.context[-i-1].update(symbol)
-                
-        self.update_history([symbol])
+
+            assert len(self.context)-1 <= len(self.history), "History size should be greater than context size"
+            assert len(self.context)-1 <= self.depth, "context size should be smaller or equal to depth"
+
+            for node in reversed(self.context):
+                node.update(symbol)
+
+            self.update_history([symbol])
+
     # end def
 
     def update_context(self):
@@ -432,23 +472,20 @@ class CTWContextTree:
         """
         self.context = [self.root]
         parent = self.root
-        
-        for i in range(self.depth):
-            if len(self.history) == i:
-                break
-            
-            symbol = self.history[-i-1]
-            
-            if symbol not in parent.children.keys():
 
-                child = CTWContextTreeNode(tree = self)
-                parent[symbol] = child
-            
-                self.tree_size +=1
-            
-            parent = parent[symbol]
-            self.context.append(parent)      
-    # end def
+        for i in range(min(self.depth, len(self.history))):
+
+            symbol = self.history[-i - 1]
+
+            if symbol not in parent.children.keys():
+                child = CTWContextTreeNode(tree=self)
+                parent.children[symbol] = child
+
+                self.tree_size += 1
+
+            parent = parent.children[symbol]
+            self.context.append(parent)
+            # end def
 
     def update_history(self, symbol_list):
         """ Appends a symbol (or a list of symbols) to the tree's history without updating the tree.
@@ -463,4 +500,7 @@ class CTWContextTree:
 
         self.history += symbol_list
     # end def
+
+    def show(self):
+        return self.root.show()
 # end class
