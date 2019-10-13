@@ -64,7 +64,8 @@ from pyaixi.agents import *
 from pyaixi.environment import Environment
 from pyaixi.environments import *
 
-def interaction_loop(agent = None, environment = None, options = {}):
+
+def interaction_loop(agent=None, environment=None, options={}):
     """ The main agent/environment interaction loop.
 
         Each interaction cycle begins with the agent receiving an
@@ -124,7 +125,7 @@ def interaction_loop(agent = None, environment = None, options = {}):
         # end if
 
         # Update the agent's environment model with the new percept.
-        agent.model_update_percept(observation, reward) # TODO: implement
+        agent.model_update_percept(observation, reward)  # TODO: implement
 
         # Determine best exploitive action, or explore.
         explored = False
@@ -144,14 +145,14 @@ def interaction_loop(agent = None, environment = None, options = {}):
                 # Tell the user we're not exploring, we're trying to choose the best action.
                 print("Agent is trying to choose the best action, which may take some time...")
             # end if
-            action = agent.search() # TODO: implement
+            action = agent.search()  # TODO: implement
         # end def
 
         # Send the action to the environment.
         environment.perform_action(action)
 
         # Update the agent's environment model with the chosen action.
-        agent.model_update_action(action) # TODO: implement
+        agent.model_update_action(action)  # TODO: implement
 
         # Calculate how long this cycle took.
         time_taken = datetime.datetime.now() - cycle_start
@@ -164,7 +165,6 @@ def interaction_loop(agent = None, environment = None, options = {}):
                    str(time_taken), agent.model_size())
         print(message)
         # TODO: implement
-        
 
         # Print to standard output when cycle == 2^n or on verbose option.
         if verbose or (cycle & (cycle - 1)) == 0:
@@ -179,7 +179,7 @@ def interaction_loop(agent = None, environment = None, options = {}):
 
         # Print environment state if verbose option is true.
         if verbose:
-              print(environment.print())
+            print(environment.print())
         # end if
 
         # Update exploration rate.
@@ -197,6 +197,8 @@ def interaction_loop(agent = None, environment = None, options = {}):
               "average reward: %f" % agent.average_reward()
 
     print(message)
+
+
 # end def
 
 def main(argv):
@@ -210,29 +212,29 @@ def main(argv):
 
     # Define some default configuration values.
     default_options = {}
-    default_options["agent"]           = "mc_aixi_ctw"
-    default_options["agent-horizon"]   = 5
-    default_options["ct-depth"]        = 30
-    default_options["environment"]     = "coin_flip"
-    default_options["exploration"]     = 0.0    # Do not explore.
-    default_options["explore-decay"]   = 1.0    # Exploration rate does not decay.
-    default_options["learning-period"] = 0      # Learn forever.
-    default_options["mc-simulations"]  = 300
-    default_options["profile"]         = False  # Whether to profile code.
-    default_options["terminate-age"]   = 0      # Never die.
-    default_options["verbose"]         = False
+    default_options["agent"] = "mc_aixi_ctw"
+    default_options["agent-horizon"] = 5
+    default_options["ct-depth"] = 30
+    default_options["environment"] = "coin_flip"
+    default_options["exploration"] = 0.0  # Do not explore.
+    default_options["explore-decay"] = 1.0  # Exploration rate does not decay.
+    default_options["learning-period"] = 0  # Learn forever.
+    default_options["mc-simulations"] = 300
+    default_options["profile"] = False  # Whether to profile code.
+    default_options["terminate-age"] = 0  # Never die.
+    default_options["verbose"] = False
 
     command_line_options = {}
 
     # Process the command line options and arguments.
     try:
         opts, args = getopt.gnu_getopt(
-                                       argv,
-                                       'd:e:h:l:m:o:pr:t:vx:',
-                                       ['explore-decay=', 'environment=', 'agent-horizon=',
-                                        'learning-period=', 'mc-simulations=', 'option', 'profile',
-                                        'terminate-age=', 'ct-depth=', 'verbose', 'exploration=',]
-                                      )
+            argv,
+            'd:e:h:l:m:o:pr:t:vx:',
+            ['explore-decay=', 'environment=', 'agent-horizon=',
+             'learning-period=', 'mc-simulations=', 'option', 'profile',
+             'terminate-age=', 'ct-depth=', 'verbose', 'exploration=', ]
+        )
 
         for opt, arg in opts:
             if opt == '--help':
@@ -432,12 +434,12 @@ def main(argv):
         # No. Exit with an error.
         sys.stderr.write("ERROR: environment module '%s' does not contain " % str(environment_title) + \
                          "a valid AIXI environment subclass. (Got '%s' instead.) Exiting." % \
-                          str(environment_classname) + os.linesep)
+                         str(environment_classname) + os.linesep)
         sys.exit(1)
     # end if
 
     # Create an instance of the environment, using the discovered options.
-    environment = environment_class(options = options)
+    environment = environment_class(options=options)
 
     # Copy environment-dependent configuration options to the options.
     options["action-bits"] = environment.action_bits()
@@ -446,15 +448,17 @@ def main(argv):
     options["reward-bits"] = environment.reward_bits()
 
     # Set up the agent, using the created environment, and the updated options.
-    agent = agent_class(environment = environment, options = options)
+    agent = agent_class(environment=environment, options=options)
 
     # Run the main agent/environment interaction loop, profiling if requested to do so.
     if bool(options.get("profile", False)):
         profile.runctx('interaction_loop(agent = agent, environment = environment, options = options)',
                        globals(), locals())
     else:
-        interaction_loop(agent = agent, environment = environment, options = options)
+        interaction_loop(agent=agent, environment=environment, options=options)
     # end def
+
+
 # end def
 
 def usage():
@@ -477,6 +481,8 @@ def usage():
 
     sys.stderr.write(message)
     sys.exit(2)
+
+
 # end def
 
 
