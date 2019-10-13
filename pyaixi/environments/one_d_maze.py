@@ -18,6 +18,7 @@ PROJECT_ROOT = os.path.realpath(os.path.join(os.pardir, os.pardir))
 sys.path.insert(0, PROJECT_ROOT)
 
 from pyaixi import environment, util
+
 # Define a enumeration to represent 1D_maze actions
 # left or right
 maze_action_enum = util.enum('aLeft', 'aRight')
@@ -38,6 +39,7 @@ oObservation = maze_observation_enum.oObservation
 rLose = maze_reward_enum.rLose
 rWin = maze_reward_enum.rWin
 
+
 class Maze(environment.Environment):
     """
 
@@ -50,6 +52,7 @@ class Maze(environment.Environment):
 
 
         """
+
     def __init__(self, options={}):
         # Set up the base environment.
         environment.Environment.__init__(self, options=options)
@@ -67,6 +70,7 @@ class Maze(environment.Environment):
         self.observation = oObservation
         self.reward = 0
         self.col = random.randint(0, 3)
+
     # end def
 
     def perform_action(self, action):
@@ -80,11 +84,11 @@ class Maze(environment.Environment):
 
         self.col_to = (-1 if action == aLeft else 0) + (1 if action == aRight else 0)
         self.col_to = min(max(self.col_to + self.col, 0), 3)
-        self.row = self.row_to
+        self.col = self.col_to
         self.reward = (1 if self.col_to == 2 else 0)
 
-
         return oObservation, self.reward
+
     # end def
 
     def print(self):
