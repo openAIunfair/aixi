@@ -150,10 +150,10 @@ class MonteCarloSearchNode:
 
         best_action = None
         max_priority = None
-        unexplored_list = list()
+        unexplored_list = []
         for action in agent.environment.valid_actions:
 
-            if action not in self.children.keys() or self.children[action].visits == 0:
+            if (action not in self.children.keys()) or self.children[action].visits == 0:
                 # if this selected child has not been explored
                 # a new nod is added to the search tree
                 # current_priority = self.unexplored_bias
@@ -170,11 +170,9 @@ class MonteCarloSearchNode:
                 interval = agent.environment.maximum_reward() - agent.environment.minimum_reward()
 
                 # a_ucb(h) = argmax....(Definition 6)
-                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + \
-                                   self.exploration_constant * \
-                                   math.sqrt(math.log(self.visits) / selected_child.visits)
+                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + self.exploration_constant * math.sqrt(math.log(self.visits) / selected_child.visits)
 
-                if max_priority is None or current_priority > max_priority:
+                if max_priority is None or current_priority > max_priority + random.random()*0.000001:
                     best_action = action
                     max_priority = current_priority
 
