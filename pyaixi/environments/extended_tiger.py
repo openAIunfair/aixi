@@ -148,9 +148,6 @@ class ExtendedTiger(environment.Environment):
             self.sitting = True
         else:  ## invalid action
             self.reward = rInvalid
-
-        return self.observation, self.reward
-
     # end def
 
     def print(self):
