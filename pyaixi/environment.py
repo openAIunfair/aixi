@@ -123,16 +123,6 @@ class Environment:
         return max(self.valid_rewards)
     # end def
 
-    def minimum_reward(self):
-        """ Returns the maximum possible reward.
-        """
-
-        return min(self.valid_rewards)
-    # end def
-
-
-
-
     def observation_bits(self):
         """ Returns the maximum number of bits required to represent an observation.
         """
