@@ -463,7 +463,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         best_mean = None
 
         for action, node in mc_search_tree.children.items():
-            mean = node.mean + random.random() * 0.01
+            mean = node.mean
 
             if best_action is None or mean > best_mean:
                 best_action = action

@@ -356,9 +356,9 @@ class CTWContextTree:
         for i in range(symbol_count):
             #assert 0.99 <= self.predict([0])+self.predict([1]) <= 1.01, "Pro sum should be equal to 1"
             
-            threshold = self.predict([0])
+            threshold = self.predict([0])/(self.predict([0])+ self.predict([1]))
             
-            symbol = 0 if random.random() <= threshold else 1
+            symbol = 0 if random.random() < threshold else 1
 
             symbol_list.append(symbol)
             self.update([symbol])
@@ -380,6 +380,9 @@ class CTWContextTree:
             - `symbol_list` The symbol (or list of symbols) to estimate the conditional probability of.
                             0 corresponds to `rho(0 | h)` and 1 to `rho(1 | h)`.
         """
+
+        if len(self.history) + len(symbol_list) <= self.depth:
+            return 0.5**len(symbol_list)
 
         probability = 0
 

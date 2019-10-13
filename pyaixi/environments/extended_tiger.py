@@ -15,7 +15,6 @@ import os
 import random
 import sys
 
-
 # Insert the package's parent directory into the system search path, so that this package can be
 # imported when the aixi.py script is run directly from a release archive.
 PROJECT_ROOT = os.path.realpath(os.path.join(os.pardir, os.pardir))
@@ -51,6 +50,7 @@ rStand = extended_tiger_reward_enum.rStand
 rTiger = extended_tiger_reward_enum.rTiger
 rGold = extended_tiger_reward_enum.rGold
 
+
 class ExtendedTiger(environment.Environment):
     """ Extended Tiger. The problem setting is similar to Tiger, except that now the
         agent begins sitting down on a chair. The actions available to the agent are: stand,
@@ -80,7 +80,7 @@ class ExtendedTiger(environment.Environment):
 
     # Instance methods.
 
-    def __init__(self, options = {}):
+    def __init__(self, options={}):
         """ Construct the ExtendedTiger environment from the given options.
 
              - `options` is a dictionary of named options and their values.
@@ -90,7 +90,7 @@ class ExtendedTiger(environment.Environment):
         """
 
         # Set up the base environment.
-        environment.Environment.__init__(self, options = options)
+        environment.Environment.__init__(self, options=options)
 
         # Define the acceptable action values.
         self.valid_actions = list(extended_tiger_action_enum.keys())
@@ -108,7 +108,7 @@ class ExtendedTiger(environment.Environment):
         self.probability = float(options["tiger_listen"])
 
         # Make sure the probability value is valid.
-        assert 0.0 <= self.probability and self.probability <= 1.0
+        assert 0.0 <= self.probability <= 1.0
 
         # Set an initial percept.
         self.observation = oNull
@@ -116,8 +116,9 @@ class ExtendedTiger(environment.Environment):
 
         # Set the initial environment by randomly put tiger and gold behind different door
         self.tiger = oLeft if random.random() < 0.5 else oRight
-        self.gold = oRight  if self.tiger==oLeft else oLeft
+        self.gold = oRight if self.tiger == oLeft else oLeft
         self.sitting = True
+
     # end def
 
     def perform_action(self, action):
@@ -141,38 +142,37 @@ class ExtendedTiger(environment.Environment):
             self.gold = oRight if self.tiger == oLeft else oLeft
             self.sitting = True
         elif action == aOpenRight and not self.sitting:
-            self.reward = rGold if self.tiget == oLeft else rTiger
+            self.reward = rGold if self.tiger == oLeft else rTiger
             self.tiger = oLeft if random.random() < 0.5 else oRight
             self.gold = oRight if self.tiger == oLeft else oLeft
             self.sitting = True
-        else:   ## invalid action
+        else:  ## invalid action
             self.reward = rInvalid
 
+        return self.observation, self.reward
 
-
-        return (self.observation,self.reward)
     # end def
-
 
     def print(self):
         """ Returns a string indicating the status of the environment.
         """
-        action = {aListen:'listen',aStand:'stand',aOpenRight:'open the right door',aOpenLeft:'open the left door'}
+        action = {aListen: 'listen', aStand: 'stand', aOpenRight: 'open the right door',
+                  aOpenLeft: 'open the left door'}
 
-        reward = {rInvalid:'invalid action(-10)',
-                  rTiger:'eaten by tiger(-100)',
-                  rGold:'find the gold(30)',
-                  rStand:'Stand up(-1)',
-                  rListen:'listen(-1)'}
+        reward = {rInvalid: 'invalid action(-10)',
+                  rTiger: 'eaten by tiger(-100)',
+                  rGold: 'find the gold(30)',
+                  rStand: 'Stand up(-1)',
+                  rListen: 'listen(-1)'}
 
-        observation = {oNull:'have not attempted to listen',
-                       oRight:'tiger should be at right door',
-                       oLeft:'tiger should be at left door'}
+        observation = {oNull: 'have not attempted to listen',
+                       oRight: 'tiger should be at right door',
+                       oLeft: 'tiger should be at left door'}
 
-        sitting = {True:'sitting',False:'standing'}
+        sitting = {True: 'sitting', False: 'standing'}
 
-        message = 'After ' + action[self.action] + ' Observation is ' + observation[self.observation] +' Reward is ' \
-                    + reward[self.reward] + ' current status: ' + sitting[self.sitting]
+        message = 'After ' + action[self.action] + ' Observation is ' + observation[self.observation] + ' Reward is ' \
+                  + reward[self.reward] + ' current status: ' + sitting[self.sitting]
         return message
     # end def
 # end class
