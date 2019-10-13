@@ -444,9 +444,9 @@ def main(argv):
     options["observation-bits"] = environment.observation_bits()
     options["percept-bits"] = environment.percept_bits()
     options["reward-bits"] = environment.reward_bits()
-    options["max-action"] = environment.maximum_action()
-    options["max-observation"] = environment.maximum_observation()
-    options["max-reward"] = environment.maximum_reward()
+    #options["max-action"] = environment.maximum_action()
+    #options["max-observation"] = environment.maximum_observation()
+    #options["max-reward"] = environment.maximum_reward()
 
     # Set up the agent, using the created environment, and the updated options.
     agent = agent_class(environment = environment, options = options)

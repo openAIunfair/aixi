@@ -159,7 +159,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `symbol_list`: the symbol list to decode the action from.
         """
 
-        return util.decode(symbol_list, self.environment.action_bits())
+        return util.decode(symbol_list, self.environment.options['action-bits'])
 
     # end def
 
@@ -169,7 +169,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `symbol_list`: the symbol list to decode the observation from.
         """
 
-        return util.decode(symbol_list, self.environment.observation_bits())
+        return util.decode(symbol_list, self.environment.options['observation-bits'])
 
     # end def
 
@@ -179,7 +179,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `symbol_list`: the symbol list to decode the reward from.
         """
 
-        return util.decode(symbol_list, self.environment.reward_bits())
+        return util.decode(symbol_list, self.environment.options['reward-bits'])
 
     # end def
 
@@ -191,8 +191,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         # Check if we've got exactly enough symbols.
-        reward_bits = self.environment.reward_bits()
-        observation_bits = self.environment.observation_bits()
+        reward_bits = self.environment.options['reward-bits']
+        observation_bits = self.environment.options['observation-bits']
 
         assert len(symbol_list) >= (reward_bits + observation_bits), \
             "The given symbol list isn't long enough to contain a percept."
@@ -217,7 +217,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `action`: the action to encode.
         """
 
-        return util.encode(action, self.environment.action_bits())
+        return util.encode(action, self.environment.options['action-bits'])
 
     # end def
 
@@ -229,8 +229,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         # Add first the encoded reward, then the encoded observation to the list of output symbols.
-        symbol_list = util.encode(reward, self.environment.reward_bits())
-        symbol_list += util.encode(observation, self.environment.observation_bits())
+        symbol_list = util.encode(reward, self.environment.options['reward-bits'])
+        symbol_list += util.encode(observation, self.environment.options['observation-bits'])
 
         # Return the generated list.
         return symbol_list
@@ -244,7 +244,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == percept_update, "An action after a percept"
 
-        binary_action = self.context_tree.generate_random_symbols(self.environment.action_bits())
+        binary_action = self.context_tree.generate_random_symbols(self.environment.options['action-bits'])
 
         return self.decode_action(binary_action)
 
@@ -257,7 +257,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == action_update, "A percept after an action"
 
-        binary_percept = self.context_tree.generate_random_symbols(self.environment.percept_bits())
+        binary_percept = self.context_tree.generate_random_symbols(self.environment.options['percept-bits'])
 
         return self.decode_percept(binary_percept)
 
@@ -270,7 +270,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == action_update, "Can only perform an percept update after an action update"
 
-        binary_percept = self.context_tree.generate_random_symbols_and_update(self.environment.percept_bits())
+        binary_percept = self.context_tree.generate_random_symbols_and_update(self.environment.options['percept-bits'])
 
         observation, reward = self.decode_percept(binary_percept)
 
@@ -307,7 +307,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             NOTE: this is for binary alphabets.
         """
 
-        return max(self.environment.action_bits(), self.environment.percept_bits())
+        return max(self.environment.options['observation-bits'], self.environment.options['percept-bits'])
 
     # end def
 
@@ -418,7 +418,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
                          (the search horizon) to simulate.
         """
 
-        self.total_reward = 0
+        sum__reward = 0
 
         for i in range(horizon):
             action = self.generate_action()
@@ -426,9 +426,9 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
             _, reward = self.generate_percept_and_update()
 
-            self.total_reward += reward
+            sum__reward += reward
 
-        return self.total_reward
+        return sum__reward
 
     # end def
 
@@ -463,12 +463,13 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         best_mean = None
 
         for action, node in mc_search_tree.children.items():
-            if best_action is None:
+            mean = node.mean + random.random() * 0.01
+
+            if best_action is None or mean > best_mean:
                 best_action = action
-                best_mean = node.mean
-            elif node.mean >= best_mean:
-                best_action = action
-                best_mean = node.mean
+                best_mean = mean
+
+        assert best_action is not None, "Should give a valid action"
 
         return best_action
     # end def

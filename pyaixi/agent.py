@@ -119,19 +119,6 @@ class Agent:
 
     # end def
 
-    def maximum_reward(self):
-        """ Returns the maximum possible reward the agent can receive in a single cycle.
-        """
-
-        # Get the value from the environment.
-        if self.environment is not None:
-            return self.environment.maximum_reward()
-        else:
-            return None
-        # end if
-
-    # end def
-
     def model_size(self):
         """ Returns the size of the agent's model.
 
