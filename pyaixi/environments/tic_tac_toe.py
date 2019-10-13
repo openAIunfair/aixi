@@ -56,7 +56,7 @@ class Tic_Tac_Toe(environment.Environment):
 
         self.valid_actions = xrange(0, 9)
         # Define the acceptable observation values.
-        self.valid_observations = xrange(0, 19683)
+        self.valid_observations = xrange(0, 174672 + 1)
 
         # Define the acceptable reward values.
         self.valid_rewards = list(tictactoe_reward_enum.keys())
@@ -160,7 +160,7 @@ class Tic_Tac_Toe(environment.Environment):
         env_random_choice = random.choice(empty_cell)
         self.board[env_random_choice[0]][env_random_choice[1]] = oOpponent
 
-        # check if env win
+        # check if opponent win
         if self.check_win():
             self.reward = rLoss
             self.set_game()
