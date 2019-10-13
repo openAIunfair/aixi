@@ -68,26 +68,35 @@ class Maze(environment.Environment):
 
         # Set an initial percept.
         self.observation = oObservation
+        self.col = random.choice([0, 1, 3])
         self.reward = 0
-        self.col = random.randint(0, 3)
 
     # end def
+
+    def reset(self):
+        self.observation = oObservation
+        self.col = random.choice([0, 1, 3])
 
     def perform_action(self, action):
         """ Receives the agent's action and calculates the new environment percept.
         """
 
-        assert self.is_valid_action(action)
+        assert self.is_valid_action(action), "Not a valid action!!!"
 
         # Save the action.
         self.action = action
 
-        self.col_to = (-1 if action == aLeft else 0) + (1 if action == aRight else 0)
-        self.col_to = min(max(self.col_to + self.col, 0), 3)
-        self.col = self.col_to
-        self.reward = (1 if self.col_to == 2 else 0)
+        col_to = (-1 if action == aLeft else 0) + (1 if action == aRight else 0)
 
-        return oObservation, self.reward
+        col_to = min(max(col_to + self.col, 0), 3)
+
+        self.col = col_to
+
+        if self.col == 2:
+            self.reward = 1
+            self.reset()
+        else:
+            self.reward = 0
 
     # end def
 

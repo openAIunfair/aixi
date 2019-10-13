@@ -125,8 +125,6 @@ class CoinFlip(environment.Environment):
         # Store the observation and reward in the environment.
         self.observation = observation
         self.reward = reward
-
-        return observation, reward
     # end def
 
     def print(self):
