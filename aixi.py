@@ -164,11 +164,6 @@ def interaction_loop(agent=None, environment=None, options={}):
                    agent.total_reward, agent.average_reward(),
                    str(time_taken), agent.model_size())
 
-        file_name = str(environment.__class__)
-        f = open(file_name,'a+')
-        f.write(message+ '\n')
-        f.close()
-
         print(message)
         # TODO: implement
 
@@ -181,6 +176,11 @@ def interaction_loop(agent=None, environment=None, options={}):
             # end if
 
             print(message)
+
+            file_name = str(type(environment).__name__)
+            f = open(file_name, 'a+')
+            f.write(message + '\n')
+            f.close()
         # end def
 
         # Print environment state if verbose option is true.

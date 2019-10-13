@@ -418,6 +418,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
                          (the search horizon) to simulate.
         """
 
+        undo_instance = MC_AIXI_CTW_Undo(self)
+
         sum__reward = 0
 
         for i in range(horizon):
@@ -428,7 +430,9 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
             sum__reward += reward
 
-        return sum__reward
+        self.model_revert(undo_instance)
+
+        return sum__reward/horizon
 
     # end def
 

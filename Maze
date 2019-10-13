@@ -1,0 +1,60 @@
+cycle: 1
+average reward: 0.000000
+explore rate: 0.300000
+
+cycle: 2
+average reward: 0.000000
+explore rate: 0.285000
+
+cycle: 4
+average reward: 0.000000
+explore rate: 0.257212
+
+cycle: 8
+average reward: 0.250000
+explore rate: 0.209501
+
+cycle: 16
+average reward: 0.437500
+explore rate: 0.138987
+
+cycle: 32
+average reward: 0.281250
+explore rate: 0.061172
+
+cycle: 64
+average reward: 0.265625
+explore rate: 0.011850
+
+cycle: 1
+average reward: 0.000000
+explore rate: 0.300000
+
+cycle: 2
+average reward: 0.000000
+explore rate: 0.285000
+
+cycle: 4
+average reward: 0.250000
+explore rate: 0.257212
+
+cycle: 1
+average reward: 0.000000
+cycle: 2
+average reward: 0.000000
+cycle: 4
+average reward: 0.250000
+cycle: 8
+average reward: 0.250000
+cycle: 16
+average reward: 0.125000
+cycle: 32
+average reward: 0.218750
+cycle: 1
+average reward: 0.000000
+cycle: 2
+average reward: 0.000000
+cycle: 4
+average reward: 0.250000
+cycle: 8
+average reward: 0.250000

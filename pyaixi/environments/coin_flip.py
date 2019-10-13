@@ -97,7 +97,7 @@ class CoinFlip(environment.Environment):
         self.probability = float(options["coin-flip-p"])
 
         # Make sure the probability value is valid.
-        assert 0.0 <= self.probability and self.probability <= 1.0
+        assert 0.0 <= self.probability <= 1.0
 
         # Set an initial percept.
         self.observation = oHeads if random.random() < self.probability else oTails
@@ -114,7 +114,7 @@ class CoinFlip(environment.Environment):
         self.action = action
 
         # Flip the coin, set observation and reward appropriately.
-        if (random.random() < self.probability):
+        if random.random() < self.probability:
             observation = oHeads
             reward = rWin if action == oHeads else rLose
         else:

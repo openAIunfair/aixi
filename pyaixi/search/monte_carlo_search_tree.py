@@ -127,7 +127,6 @@ class MonteCarloSearchNode:
             reward = agent.playout(horizon)
 
         else:
-
             action = self.select_action(agent)
             agent.model_update_action(action)
 
@@ -150,7 +149,7 @@ class MonteCarloSearchNode:
         """
 
         best_action = None
-        max_priority = float('-inf')
+        max_priority = None
         unexplored_list = list()
         for action in agent.environment.valid_actions:
 
@@ -168,14 +167,14 @@ class MonteCarloSearchNode:
                 m = agent.horizon
 
                 # each instantaneous reward is bounded in the interval [a,b]
-                interval = agent.environment.maximum_reward()
+                interval = agent.environment.maximum_reward() - agent.environment.minimum_reward()
 
                 # a_ucb(h) = argmax....(Definition 6)
                 current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + \
                                    self.exploration_constant * \
                                    math.sqrt(math.log(self.visits) / selected_child.visits)
 
-                if current_priority > max_priority:
+                if max_priority is None or current_priority > max_priority:
                     best_action = action
                     max_priority = current_priority
 

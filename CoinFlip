@@ -1,0 +1,60 @@
+cycle: 1
+average reward: 0.000000
+cycle: 2
+average reward: 0.500000
+cycle: 4
+average reward: 0.500000
+cycle: 8
+average reward: 0.375000
+cycle: 16
+average reward: 0.437500
+cycle: 1
+average reward: 0.000000
+cycle: 2
+average reward: 0.500000
+cycle: 4
+average reward: 0.500000
+cycle: 8
+average reward: 0.500000
+cycle: 16
+average reward: 0.500000
+cycle: 32
+average reward: 0.468750
+cycle: 64
+average reward: 0.500000
+cycle: 128
+average reward: 0.625000
+cycle: 1
+average reward: 0.000000
+cycle: 2
+average reward: 0.500000
+cycle: 4
+average reward: 0.250000
+cycle: 8
+average reward: 0.500000
+cycle: 16
+average reward: 0.500000
+cycle: 32
+average reward: 0.531250
+cycle: 64
+average reward: 0.625000
+cycle: 1
+average reward: 0.000000
+cycle: 1
+average reward: 0.000000
+cycle: 1
+average reward: 0.000000
+cycle: 2
+average reward: 0.000000
+cycle: 4
+average reward: 0.250000
+cycle: 8
+average reward: 0.375000
+cycle: 16
+average reward: 0.437500
+cycle: 32
+average reward: 0.500000
+cycle: 64
+average reward: 0.546875
+cycle: 128
+average reward: 0.710938
