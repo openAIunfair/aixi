@@ -162,6 +162,12 @@ def interaction_loop(agent = None, environment = None, options = {}):
                    str(action), str(explored), explore_rate,
                    agent.total_reward, agent.average_reward(),
                    str(time_taken), agent.model_size())
+
+        file_name = str(environment.__class__)
+        f = open(file_name,'a+')
+        f.write(message+ '\n')
+        f.close()
+
         print(message)
         # TODO: implement
         
