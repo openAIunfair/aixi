@@ -65,11 +65,11 @@ class CoinFlip(environment.Environment):
     # Instance attributes.
 
     # Set the default probability for the biased coin, when none is supplied from the options.
-    default_probability = 0
+    default_probability = 0.2
 
     # Instance methods.
 
-    def __init__(self, options = {}):
+    def __init__(self, options):
         """ Construct the CoinFlip environment from the given options.
 
              - `options` is a dictionary of named options and their values.
@@ -125,8 +125,6 @@ class CoinFlip(environment.Environment):
         # Store the observation and reward in the environment.
         self.observation = observation
         self.reward = reward
-
-        return (observation, reward)
     # end def
 
     def print(self):
