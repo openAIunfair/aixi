@@ -50,7 +50,6 @@ class Environment:
         self.options = options
 
         # Set the current reward to null/None.
-        # (Called `m_reward` in the C++ version.)
         self.reward = None
 
         # Defines the acceptable action values.
@@ -120,55 +119,39 @@ class Environment:
     def maximum_action(self):
         """ Returns the maximum possible action.
         """
+        return max(self.valid_actions)
 
-        # The largest action is the last in the list of valid actions.
-        # Else, it's null/None.
-        return self.valid_actions[-1] if len(self.valid_actions) > 0 else None
     # end def
 
     def maximum_observation(self):
         """ Returns the maximum possible observation.
         """
-
-        # The largest observation is the last in the list of valid observations.
-        # Else, it's null/None.
-        return self.valid_observations[-1] if len(self.valid_observations) > 0 else None
+        return max(self.valid_observations)
     # end def
 
     def maximum_reward(self):
         """ Returns the maximum possible reward.
         """
 
-        # The largest reward is the last in the list of valid rewards.
-        # Else, it's null/None.
-        return self.valid_rewards[-1] if len(self.valid_rewards) > 0 else None
+        return max(self.valid_rewards)
     # end def
 
     def minimum_action(self):
         """ Returns the minimum possible action.
         """
-
-        # The smallest action is the first in the list of valid actions.
-        # Else, it's null/None.
-        return self.valid_actions[1] if len(self.valid_actions) > 0 else None
+        return min(self.valid_actions)
     # end def
 
     def minimum_observation(self):
         """ Returns the minimum possible observation.
         """
-
-        # The smallest observation is the first in the list of valid observations.
-        # Else, it's null/None.
-        return self.valid_observations[1] if len(self.valid_observations) > 0 else None
+        return min(self.valid_observations)
     # end def
 
     def minimum_reward(self):
         """ Returns the minimum possible reward.
         """
-
-        # The smallest reward is the first in the list of valid rewards.
-        # Else, it's null/None.
-        return self.valid_rewards[1] if len(self.valid_rewards) > 0 else None
+        return min(self.valid_rewards)
     # end def
 
     def observation_bits(self):

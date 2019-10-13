@@ -168,7 +168,7 @@ class MonteCarloSearchNode:
                 m = agent.horizon
 
                 # each instantaneous reward is bounded in the interval [a,b]
-                interval = agent.maximum_reward()
+                interval = agent.environment.maximum_reward()
 
                 # a_ucb(h) = argmax....(Definition 6)
                 current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + \
