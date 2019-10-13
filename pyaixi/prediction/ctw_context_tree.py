@@ -356,7 +356,6 @@ class CTWContextTree:
         for i in range(symbol_count):
             #assert 0.99 <= self.predict([0])+self.predict([1]) <= 1.01, "Pro sum should be equal to 1"
             
-            
             threshold = self.predict([0])
             
             symbol = 0 if random.random() <= threshold else 1
@@ -394,6 +393,13 @@ class CTWContextTree:
         self.revert(len(symbol_list))
 
         return math.exp(probability)
+
+        # prob_history = self.root.log_probability
+        # self.update(symbol_list)
+        # prob_sequence = self.root.log_probability
+        # self.revert(len(symbol_list))
+        #
+        # return math.exp(prob_sequence - prob_history)
 
     # end def
 
