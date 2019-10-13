@@ -56,7 +56,7 @@ class Tic_Tac_Toe(environment.Environment):
 
         self.valid_actions = xrange(0, 9)
         # Define the acceptable observation values.
-        self.valid_observations = xrange(0, 19683)
+        self.valid_observations = xrange(0, 174672 + 1)
 
         # Define the acceptable reward values.
         self.valid_rewards = list(tictactoe_reward_enum.keys())
@@ -150,7 +150,7 @@ class Tic_Tac_Toe(environment.Environment):
             self.set_game()
             return
 
-        # The environment makes a random play.
+        # The environment makes a random play. yuanchenhua version
         empty_cell = []
         for r in range(3):
             for c in range(3):
@@ -160,7 +160,20 @@ class Tic_Tac_Toe(environment.Environment):
         env_random_choice = random.choice(empty_cell)
         self.board[env_random_choice[0]][env_random_choice[1]] = oOpponent
 
-        # check if env win
+
+        # The environment makes a random play. official version
+
+        # while (self.board[r][c] != oEmpty):
+        #     # Keep picking board positions at random until we find an unoccupied spot.
+        #     r = random.randrange(0, 3)
+        #     c = random.randrange(0, 3)
+        #     # end while
+        # 
+        #     # If we're here, we've got an unoccupied spot.
+        # self.board[r][c] = oOpponent
+
+
+        # check if opponent win
         if self.check_win():
             self.reward = rLoss
             self.set_game()

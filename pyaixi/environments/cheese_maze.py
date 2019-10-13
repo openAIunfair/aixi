@@ -87,12 +87,12 @@ class CheeseMaze(environment.Environment):
         self.valid_observations = list(range(16))
 
         # Define the acceptable reward values.
-        self.valid_rewards = list(range(-10, 11))
+        self.valid_rewards = list(range(21))
 
         # Set an initial percept.
         self.location = l10
         self.observation = l10.observation
-        self.reward = 0
+        self.reward = 10
     # end def
 
     def perform_action(self, action):
@@ -118,14 +118,15 @@ class CheeseMaze(environment.Environment):
             self.location = next_loc
             self.observation = self.location.observation
             if self.location == m7:
-                self.reward += 10
-                self.is_finished = True
-                return self.location, 10
-            self.reward -= 1
-            return self.location.observation, -1
+                self.reward = 20
+                # reset the environment
+                self.location = l10
+                self.observation = self.location.observation
+                # self.is_finished = True
+            else:
+                self.reward = 9
         else:
-            self.reward -= 10
-            return self.location.observation, -10
+            self.reward = 0
     # end def
 
     def print(self):
