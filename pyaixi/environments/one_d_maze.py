@@ -106,7 +106,7 @@ class Maze(environment.Environment):
 
         message = "reward = %d" % self.reward + os.linesep
         for c in range(4):
-            if self.row == c:
+            if self.col == c:
                 message += "A"
             else:
                 message += "*"
