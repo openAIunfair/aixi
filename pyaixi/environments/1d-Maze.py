@@ -66,6 +66,7 @@ class Maze(environment.Environment):
         # Set an initial percept.
         self.observation = oObservation
         self.reward = 0
+        self.col = random.randint(0, 3)
     # end def
 
     def perform_action(self, action):
@@ -77,32 +78,25 @@ class Maze(environment.Environment):
         # Save the action.
         self.action = action
 
-        # # Flip the coin, set observation and reward appropriately.
-        # if (random.random() < self.probability):
-        #     observation = oHeads
-        #     reward = rWin if action == oHeads else rLose
-        # else:
-        #     observation = oTails
-        #     reward = rWin if action == oTails else rLose
-        # # end if
+        self.col_to = (-1 if action == aLeft else 0) + (1 if action == aRight else 0)
+        self.col_to = min(max(self.col_to + self.col, 0), 3)
+        self.row = self.row_to
+        self.reward = (1 if self.col_to == 2 else 0)
 
 
-        # Store the observation and reward in the environment.
-        self.observation = observation
-        self.reward = reward
-
-        return (observation, reward)
+        return oObservation, self.reward
     # end def
 
     def print(self):
         """ Returns a string indicating the status of the environment.
         """
 
-        message = "prediction: " + \
-                  ("tails" if self.action == aTails else "heads") + \
-                  ", observation: " + \
-                  ("tails" if self.observation == oTails else "heads") + \
-                  ", reward: %d" % self.reward
+        message = "reward = %d" % self.reward + os.linesep
+        for c in range(4):
+            if self.row == c:
+                message += "A"
+            else:
+                message += "*"
 
         return message
     # end def

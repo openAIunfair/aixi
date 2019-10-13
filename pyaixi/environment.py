@@ -116,11 +116,42 @@ class Environment:
         return reward in self.valid_rewards
     # end def
 
+    def maximum_action(self):
+        """ Returns the maximum possible action.
+        """
+        return max(self.valid_actions)
+
+    # end def
+
+    def maximum_observation(self):
+        """ Returns the maximum possible observation.
+        """
+        return max(self.valid_observations)
+    # end def
+
     def maximum_reward(self):
         """ Returns the maximum possible reward.
         """
 
         return max(self.valid_rewards)
+    # end def
+
+    def minimum_action(self):
+        """ Returns the minimum possible action.
+        """
+        return min(self.valid_actions)
+    # end def
+
+    def minimum_observation(self):
+        """ Returns the minimum possible observation.
+        """
+        return min(self.valid_observations)
+    # end def
+
+    def minimum_reward(self):
+        """ Returns the minimum possible reward.
+        """
+        return min(self.valid_rewards)
     # end def
 
     def observation_bits(self):
