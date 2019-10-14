@@ -132,7 +132,7 @@ class ExtendedTiger(environment.Environment):
 
         self.reward = rInvalid
 
-        if action == aListen and self.sitting and self.observation != oNull:
+        if action == aListen and self.sitting and self.observation == oNull:
             self.observation = self.tiger if random.random > self.default_probability else self.gold
             self.reward = rListen
         elif action == aStand and self.sitting:
