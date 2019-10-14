@@ -136,7 +136,7 @@ class CheeseMaze(environment.Environment):
         action_name = {aUp: "move up", aRight: "move right", aDown: "move down", aLeft: "move left"}
 
         message = "action: " + action_name[self.action] + \
-                  ", observation: " + self.observation + \
+                  ", observation: " + str(self.observation) + \
                   ", reward: %d" % self.reward
 
         return message
