@@ -127,7 +127,8 @@ class Tic_Tac_Toe(environment.Environment):
         self.steps += 1
 
         # Decode the action
-        r = int(action / 3)
+        #r = int(action / 3)
+        r = action // 3
         c = action % 3
 
         # invalid move, reward and reset game

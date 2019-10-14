@@ -342,7 +342,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         # The last update must have been a percept, else this action update is invalid.
-        assert self.environment.is_valid_action(action), "Invalid action given."
         assert self.last_update == percept_update, "Can only perform an action update after a percept update."
 
         # Update the agent's internal model of the world after performing an action.
@@ -418,17 +417,15 @@ class MC_AIXI_CTW_Agent(agent.Agent):
                          (the search horizon) to simulate.
         """
 
-        sum__reward = 0
+        sum__reward = 0.0
 
         for i in range(horizon):
             action = self.generate_action()
             self.model_update_action(action)
 
-            _, reward = self.generate_percept_and_update()
+            sum__reward += self.generate_percept_and_update()[1]
 
-            sum__reward += reward
-
-        return sum__reward/horizon
+        return sum__reward
 
     # end def
 
@@ -459,18 +456,9 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             mc_search_tree.sample(self, self.horizon)
             self.model_revert(undo_instance)
 
-        best_action = None
-        best_mean = None
+        best_action = self.generate_random_action()
+        best_mean = -float('inf')
 
-        for action, node in mc_search_tree.children.items():
-            mean = node.mean
-
-            if best_action is None or mean > best_mean:
-                best_action = action
-                best_mean = mean
-
-        assert best_action is not None, "Should give a valid action"
-
-        return best_action
+        return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.0001)
     # end def
 # end class

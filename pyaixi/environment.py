@@ -87,15 +87,7 @@ class Environment:
         """
 
         # Find the largest sized observation.
-        maximum_bits = 0
-        for action in self.valid_actions:
-            bits_for_this_action = util.bits_required(action)
-            if bits_for_this_action > maximum_bits:
-                maximum_bits = bits_for_this_action
-            # end if
-        # end for
-
-        return maximum_bits
+        return max([util.bits_required(action) for action in self.valid_actions])
     # end def
 
     def is_valid_action(self, action):
@@ -139,7 +131,7 @@ class Environment:
     def minimum_action(self):
         """ Returns the minimum possible action.
         """
-        return min(self.valid_actions)
+        return max(self.valid_actions)
     # end def
 
     def minimum_observation(self):
@@ -158,16 +150,7 @@ class Environment:
         """ Returns the maximum number of bits required to represent an observation.
         """
 
-        # Find the largest sized observation.
-        maximum_bits = 0
-        for observation in self.valid_observations:
-            bits_for_this_observation = util.bits_required(observation)
-            if bits_for_this_observation > maximum_bits:
-                maximum_bits = bits_for_this_observation
-            # end if
-        # end for
-
-        return maximum_bits
+        return max([util.bits_required(observation) for observation in self.valid_observations])
     # end def
 
     def percept_bits(self):
@@ -195,14 +178,6 @@ class Environment:
         """
 
         # Find the largest sized reward.
-        maximum_bits = 0
-        for reward in self.valid_rewards:
-            bits_for_this_reward = util.bits_required(reward)
-            if bits_for_this_reward > maximum_bits:
-                maximum_bits = bits_for_this_reward
-            # end if
-        # end for
-
-        return maximum_bits
+        return max([util.bits_required(reward) for reward in self.valid_rewards])
     # end def
 # end class
