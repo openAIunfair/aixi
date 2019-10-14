@@ -135,7 +135,7 @@ class MonteCarloSearchNode:
 
             reward = self.children[action].sample(agent, horizon)
 
-        self.mean = (reward + 1.0 * self.mean * self.visits) / (self.visits + 1.0)
+        self.mean = (reward + 1.0 * self.mean * self.visits) / (1.0 * self.visits + 1.0)
         self.visits += 1
 
         return reward
@@ -151,13 +151,14 @@ class MonteCarloSearchNode:
         best_action = None
         max_priority = None
         unexplored_list = []
+
         for action in agent.environment.valid_actions:
 
             if (action not in self.children.keys()) or self.children[action].visits == 0:
                 # if this selected child has not been explored
                 # a new nod is added to the search tree
-                # current_priority = self.unexplored_bias
-                unexplored_list.append(action)
+
+                current_priority = self.unexplored_bias
             else:
 
                 selected_child = self.children[action]
@@ -170,13 +171,15 @@ class MonteCarloSearchNode:
                 interval = agent.environment.maximum_reward() - agent.environment.minimum_reward()
 
                 # a_ucb(h) = argmax....(Definition 6)
-                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + self.exploration_constant * math.sqrt(math.log(self.visits) / selected_child.visits)
+                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + self.exploration_constant * \
+                                   math.sqrt(math.log(self.visits) / selected_child.visits)
 
-                if max_priority is None or current_priority > max_priority + random.random()*0.000001:
-                    best_action = action
-                    max_priority = current_priority
+            #Select best action. Use random to avoid preemptive advantage
+            if best_action is None or current_priority + (random.random()-0.5)*0.001 > max_priority:
+                best_action = action
+                max_priority = current_priority
 
-        # select action uniformly at random in the unexplored action list.
+        #select action uniformly at random in the unexplored action list.
         if len(unexplored_list) > 0:
             return random.choice(unexplored_list)
 

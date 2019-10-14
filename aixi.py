@@ -178,8 +178,8 @@ def interaction_loop(agent=None, environment=None, options={}):
             print(message)
 
             file_name = str(type(environment).__name__)
-            f = open(file_name, 'a+')
-            f.write(message + '\n')
+            f = open(file_name+'.txt', 'a+')
+            f.write(str(agent.average_reward()) + '\n')
             f.close()
         # end def
 
