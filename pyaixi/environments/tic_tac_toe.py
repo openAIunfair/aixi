@@ -43,7 +43,7 @@ class Tic_Tac_Toe(environment.Environment):
         Domain characteristics:
         - environment: "tictactoe"
         - maximum action: 8 (4 bits)
-        - maximum observation: 174672 (18 bits)
+        - maximum observation: 174672 (18 bits)    19683 (15 bits)
           - 174672 (decimal) = 101010101010101010 (binary)
         - maximum reward: 5 (3 bits)
     """
@@ -56,7 +56,7 @@ class Tic_Tac_Toe(environment.Environment):
 
         self.valid_actions = xrange(0, 16)
         # Define the acceptable observation values.
-        self.valid_observations = xrange(0, 174672 + 1)
+        self.valid_observations = xrange(0, 19683 + 1)
 
         # Define the acceptable reward values.
         self.valid_rewards = list(tictactoe_reward_enum.keys())
@@ -116,7 +116,7 @@ class Tic_Tac_Toe(environment.Environment):
         self.observation = 0
         for r in range(3):
             for c in range(3):
-                self.observation = self.board[r][c] + (4 * self.observation)
+                self.observation = self.board[r][c] + (3 * self.observation)
 
     def perform_action(self, action):
 
