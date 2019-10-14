@@ -69,7 +69,7 @@ class MonteCarloSearchNode:
     # Class attributes.
 
     # Exploration constant for the UCB action policy.
-    exploration_constant = 2.0
+    exploration_constant = math.sqrt(2)
 
     # Unexplored action bias.
     unexplored_bias = 1000000000.0
