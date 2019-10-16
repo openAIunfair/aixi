@@ -12,6 +12,7 @@ import copy
 import os
 import random
 import sys
+import itertools
 
 # Insert the package's parent directory into the system search path, so that this package can be
 # imported when the aixi.py script is run directly from a release archive.
@@ -244,9 +245,13 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == percept_update, "An action after a percept"
 
-        binary_action = self.context_tree.generate_random_symbols(self.environment.options['action-bits'])
+        #binary_action = self.context_tree.generate_random_symbols(self.environment.options['action-bits'])
 
-        return self.decode_action(binary_action)
+        # return self.decode_action(random.choice([self.context_tree.generate_random_symbols(self.environment.options['action-bits']) for i in range(100)]))
+
+        return max(self.environment.valid_actions, key=lambda x: self.get_predicted_action_probability(x))
+
+        #return self.decode_action(binary_action)
 
     # end def
 
@@ -257,9 +262,19 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == action_update, "A percept after an action"
 
-        binary_percept = self.context_tree.generate_random_symbols(self.environment.options['percept-bits'])
+        # binary_percept = self.context_tree.generate_random_symbols(self.environment.options['percept-bits'])
+        #
+        # return self.decode_percept(binary_percept)
 
-        return self.decode_percept(binary_percept)
+        best_percept = None
+        best_prob = None
+
+        for observation, reward in itertools.product(self.environment.valid_observations, self.environment.valid_rewards):
+            if best_percept is None or self.percept_probability(observation, reward) >= best_prob:
+                best_percept = observation, reward
+                best_prob = self.percept_probability(observation, reward)
+
+        return best_percept
 
     # end def
 
@@ -270,12 +285,8 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == action_update, "Can only perform an percept update after an action update"
 
-        binary_percept = self.context_tree.generate_random_symbols_and_update(self.environment.options['percept-bits'])
-
-        observation, reward = self.decode_percept(binary_percept)
-
-        self.total_reward += reward
-        self.last_update = percept_update
+        observation, reward = self.generate_percept()
+        self.model_update_percept(observation, reward)
 
         return observation, reward
 
@@ -290,7 +301,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         binary_action = self.encode_action(action)
 
-        return self.context_tree.predict(binary_action)
+        return self.context_tree.predict(binary_action)+(random.random()-0.5)*0.00001
 
     # end def
 
@@ -307,7 +318,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             NOTE: this is for binary alphabets.
         """
 
-        return max(self.environment.options['observation-bits'], self.environment.options['percept-bits'])
+        return max(self.environment.options['percept-bits'], self.environment.options['action-bits'])
 
     # end def
 
@@ -448,17 +459,11 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         # Use rhoUCT to search for the next action.
 
-        undo_instance = MC_AIXI_CTW_Undo(self)
-
         mc_search_tree = monte_carlo_search_tree.MonteCarloSearchNode(decision_node)
 
         for i in range(self.mc_simulations):
             mc_search_tree.sample(self, self.horizon)
-            self.model_revert(undo_instance)
 
-        best_action = self.generate_random_action()
-        best_mean = -float('inf')
-
-        return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.0001)
+        return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.000001)
     # end def
 # end class

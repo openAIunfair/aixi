@@ -19,6 +19,7 @@ PROJECT_ROOT = os.path.realpath(os.path.join(os.pardir, os.pardir))
 sys.path.insert(0, PROJECT_ROOT)
 
 from pyaixi import util
+from pyaixi.agents import mc_aixi_ctw
 
 # An enumeration type used to specify the type of Monte Carlo search node.
 # Chance nodes represent a set of possible observation
@@ -112,7 +113,9 @@ class MonteCarloSearchNode:
             # reach the depth and return the final reward
             return reward
 
-        elif self.type == chance_node:
+        undo_instance = mc_aixi_ctw.MC_AIXI_CTW_Undo(agent)
+
+        if self.type == chance_node:
             # if the node is chance node
             observation, r = agent.generate_percept_and_update()
 
@@ -137,6 +140,7 @@ class MonteCarloSearchNode:
 
         self.mean = (reward + 1.0 * self.mean * self.visits) / (1.0 * self.visits + 1.0)
         self.visits += 1
+        agent.model_revert(undo_instance)
 
         return reward
 
@@ -158,7 +162,7 @@ class MonteCarloSearchNode:
                 # if this selected child has not been explored
                 # a new nod is added to the search tree
 
-                current_priority = self.unexplored_bias
+                unexplored_list.append(action)
             else:
 
                 selected_child = self.children[action]
@@ -175,9 +179,9 @@ class MonteCarloSearchNode:
                                    math.sqrt(math.log(self.visits) / selected_child.visits)
 
             #Select best action. Use random to avoid preemptive advantage
-            if best_action is None or current_priority + (random.random()-0.5)*0.001 > max_priority:
-                best_action = action
-                max_priority = current_priority
+                if best_action is None or current_priority + (random.random()-0.5)*0.001 > max_priority:
+                    best_action = action
+                    max_priority = current_priority
 
         #select action uniformly at random in the unexplored action list.
         if len(unexplored_list) > 0:

@@ -123,10 +123,16 @@ class CTWContextTreeNode:
         assert self.symbol_count[symbol] >= 0, "Symbol count should be non-negative"
 
         self.log_kt -= self.log_kt_multiplier(symbol)
-        if symbol in self.children.keys():
-            if self.children[symbol].visits() == 0:
-                self.tree.tree_size -= self.children[symbol].size()
-                del self.children[symbol]
+        
+        del_list = []
+        
+        for child in self.children.keys():
+            if self.children[child].visits() == 0:
+                self.tree.tree_size -= self.children[child].size()
+                del_list.append(child)
+                
+        for child in del_list:
+            del self.children[child]
 
         self.update_log_probability()
 
@@ -205,8 +211,6 @@ class CTWContextTreeNode:
 
         for symbol, child in self.children.items():
             childrens += str(symbol) + child.show() + ','
-
-        childrens = childrens
 
         return '{' + symbols + '||' + childrens + '}'
 
@@ -329,14 +333,11 @@ class CTWContextTree:
         if len(self.history) + len(symbol_list) <= self.depth:
             return 0.5 ** len(symbol_list)
 
-        probability = 0
+        rho_h = self.root.log_probability
+        self.update(symbol_list)
+        rho_hy = self.root.log_probability
 
-        for symbol in symbol_list:
-            rho_h = self.root.log_probability
-            self.update([symbol])
-            rho_hy = self.root.log_probability
-
-            probability += rho_hy - rho_h
+        probability = rho_hy - rho_h
 
         self.revert(len(symbol_list))
 
@@ -367,9 +368,6 @@ class CTWContextTree:
 
             for node in reversed(self.context):
                 node.revert(symbol)
-
-            # self.revert_history()
-
     # end def
 
     def revert_history(self, symbol_count=1):
@@ -400,7 +398,6 @@ class CTWContextTree:
             - `symbol_list`: the symbol (or list of symbols) with which to update the tree.
                               (The context tree is updated with symbols in the order they appear in the list.)
         """
-
         for symbol in symbol_list:
             self.update_context()
 
@@ -411,7 +408,6 @@ class CTWContextTree:
                 node.update(symbol)
 
             self.update_history([symbol])
-
     # end def
 
     def update_context(self):
@@ -428,7 +424,7 @@ class CTWContextTree:
 
             symbol = self.history[-i - 1]
 
-            if symbol not in parent.children.keys():
+            if symbol not in parent.children:
                 child = CTWContextTreeNode(tree=self)
                 parent.children[symbol] = child
 
