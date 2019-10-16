@@ -245,14 +245,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == percept_update, "An action after a percept"
 
-        #binary_action = self.context_tree.generate_random_symbols(self.environment.options['action-bits'])
-
-        # return self.decode_action(random.choice([self.context_tree.generate_random_symbols(self.environment.options['action-bits']) for i in range(100)]))
-
         return max(self.environment.valid_actions, key=lambda x: self.get_predicted_action_probability(x))
-
-        #return self.decode_action(binary_action)
-
     # end def
 
     def generate_percept(self):
@@ -261,10 +254,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         assert self.last_update == action_update, "A percept after an action"
-
-        # binary_percept = self.context_tree.generate_random_symbols(self.environment.options['percept-bits'])
-        #
-        # return self.decode_percept(binary_percept)
 
         best_percept = None
         best_prob = None
@@ -430,6 +419,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         sum__reward = 0.0
 
+
         for i in range(horizon):
             action = self.generate_action()
             self.model_update_action(action)
@@ -457,12 +447,15 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             (predictive UCT).
         """
 
+        for action in self.environment.valid_actions:
+            print(self.encode_action(action))
         # Use rhoUCT to search for the next action.
-
+        undo_instance = MC_AIXI_CTW_Undo(self)
         mc_search_tree = monte_carlo_search_tree.MonteCarloSearchNode(decision_node)
 
         for i in range(self.mc_simulations):
             mc_search_tree.sample(self, self.horizon)
+            self.model_revert(undo_instance)
 
         return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.000001)
     # end def

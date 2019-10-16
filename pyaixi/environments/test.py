@@ -15,7 +15,7 @@ from pyaixi import environment, util
 
 test_action_enum = util.enum('a0', 'a1', 'a2')
 test_observation_enum = util.enum('o0', 'o1', 'o2')
-test_reward_enum = util.enum(r0=0, r1=5, r2=3)
+test_reward_enum = util.enum(r0=2, r1=3, r2=10)
 
 a0 = test_action_enum.a0
 a1 = test_action_enum.a1

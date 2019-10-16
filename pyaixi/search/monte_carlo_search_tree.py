@@ -19,7 +19,7 @@ PROJECT_ROOT = os.path.realpath(os.path.join(os.pardir, os.pardir))
 sys.path.insert(0, PROJECT_ROOT)
 
 from pyaixi import util
-from pyaixi.agents import mc_aixi_ctw
+
 
 # An enumeration type used to specify the type of Monte Carlo search node.
 # Chance nodes represent a set of possible observation
@@ -113,8 +113,6 @@ class MonteCarloSearchNode:
             # reach the depth and return the final reward
             return reward
 
-        undo_instance = mc_aixi_ctw.MC_AIXI_CTW_Undo(agent)
-
         if self.type == chance_node:
             # if the node is chance node
             observation, r = agent.generate_percept_and_update()
@@ -128,7 +126,6 @@ class MonteCarloSearchNode:
             # if the node has not been explored
             # pick actions through roll out policy and return the sum of reward
             reward = agent.playout(horizon)
-
         else:
             action = self.select_action(agent)
             agent.model_update_action(action)
@@ -140,7 +137,6 @@ class MonteCarloSearchNode:
 
         self.mean = (reward + 1.0 * self.mean * self.visits) / (1.0 * self.visits + 1.0)
         self.visits += 1
-        agent.model_revert(undo_instance)
 
         return reward
 
