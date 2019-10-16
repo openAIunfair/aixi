@@ -150,6 +150,10 @@ class ExtendedTiger(environment.Environment):
             self.gold = oRight if self.tiger == oLeft else oLeft
             self.sitting = True
             self.observation = oNull
+
+
+
+         ## invalid action
     # end def
 
     def print(self):

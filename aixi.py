@@ -139,6 +139,7 @@ def interaction_loop(agent=None, environment=None, options={}):
                 print("Agent is trying an action at random...")
             # end if
             action = agent.generate_random_action()
+        # end if
         else:
             # No, we're not still exploring.
             # Exploit our past learning to work out the best action.
@@ -147,7 +148,7 @@ def interaction_loop(agent=None, environment=None, options={}):
                 print("Agent is trying to choose the best action, which may take some time...")
             # end if
             action = agent.search()  # TODO: implement
-        # end def
+        # end else
 
         # Send the action to the environment.
         environment.perform_action(action)
@@ -164,9 +165,12 @@ def interaction_loop(agent=None, environment=None, options={}):
                    str(action), str(explored), explore_rate,
                    agent.total_reward, agent.average_reward(),
                    str(time_taken), agent.model_size())
-
         print(message)
         # TODO: implement
+        file_name = str(environment.__class__).split('.')[-2]
+        f = open(file_name + '.csv', 'a+')
+        f.write(message + '\n')
+        f.close()
 
         # Print to standard output when cycle == 2^n or on verbose option.
         if verbose or (cycle & (cycle - 1)) == 0:
@@ -178,10 +182,9 @@ def interaction_loop(agent=None, environment=None, options={}):
 
             print(message)
 
-            file_name = str(type(environment).__name__)
-            f = open(file_name+'.txt', 'a+')
-            f.write(str(agent.average_reward()) + '\n')
-            f.close()
+            f2 = open(file_name + '.txt', 'a+')
+            f2.write(str(agent.average_reward()) + '\n')
+            f2.close()
         # end def
 
         # Print environment state if verbose option is true.
@@ -204,9 +207,8 @@ def interaction_loop(agent=None, environment=None, options={}):
               "average reward: %f" % agent.average_reward()
 
     print(message)
-
-
 # end def
+
 
 def main(argv):
     """ Entry point of the program. Sets up logging, default configuration values,
@@ -235,13 +237,14 @@ def main(argv):
 
     # Process the command line options and arguments.
     try:
-        opts, args = getopt.gnu_getopt(
-            argv,
-            'd:e:h:l:m:o:pr:t:vx:',
-            ['explore-decay=', 'environment=', 'agent-horizon=',
-             'learning-period=', 'mc-simulations=', 'option', 'profile',
-             'terminate-age=', 'ct-depth=', 'verbose', 'exploration=', ]
-        )
+        opts, args = \
+            getopt.gnu_getopt(
+                argv,
+                'd:e:h:l:m:o:pr:t:vx:',
+                ['explore-decay=', 'environment=', 'agent-horizon=',
+                 'learning-period=', 'mc-simulations=', 'option', 'profile',
+                 'terminate-age=', 'ct-depth=', 'verbose', 'exploration=', ]
+            )
 
         for opt, arg in opts:
             if opt == '--help':
@@ -407,6 +410,16 @@ def main(argv):
     # Try to import an environment module with the given name.
     environment_title = options["environment"]
 
+    try:
+        os.remove(environment_title + '.csv')
+    except OSError:
+        pass
+
+    try:
+        os.remove(environment_title + '.txt')
+    except OSError:
+        pass
+
     # Ensure the name of the package we're trying to import has a prefix of 'pyaixi.environments',
     # if it doesn't have one specified already.
     if environment_title.count('.') == 0:
@@ -453,6 +466,9 @@ def main(argv):
     options["observation-bits"] = environment.observation_bits()
     options["percept-bits"] = environment.percept_bits()
     options["reward-bits"] = environment.reward_bits()
+    options["max-action"] = environment.maximum_action()
+    options["max-observation"] = environment.maximum_observation()
+    options["max-reward"] = environment.maximum_reward()
 
     # Set up the agent, using the created environment, and the updated options.
     agent = agent_class(environment=environment, options=options)
@@ -464,9 +480,8 @@ def main(argv):
     else:
         interaction_loop(agent=agent, environment=environment, options=options)
     # end def
-
-
 # end def
+
 
 def usage():
     """ Prints usage information.
@@ -488,8 +503,6 @@ def usage():
 
     sys.stderr.write(message)
     sys.exit(2)
-
-
 # end def
 
 

@@ -72,9 +72,9 @@ class CheeseMaze(environment.Environment):
     """
             Domain characteristics:
             - environment: "Maze"
-            - maximum action: 2 (2 bit)
-            - maximum observation: 4 (4 bit)
-            - maximum reward: 4 (4 bit)
+            - maximum action: 3 (2 bit)
+            - maximum observation: 15 (4 bit)
+            - maximum reward: 20 (5 bit)
         """
     def __init__(self, options={}):
         # Set up the base environment.
@@ -84,15 +84,16 @@ class CheeseMaze(environment.Environment):
         self.valid_actions = list(action_enum.keys())
 
         # Define the acceptable observation values.
-        self.valid_observations = list(range(16))
+        # 15 stands for 1111, i.e. all walls on 4 side
+        self.valid_observations = list(range(15 + 1))
 
         # Define the acceptable reward values.
-        self.valid_rewards = list(range(21))
+        self.valid_rewards = list(range(20 + 1))
 
         # Set an initial percept.
         self.location = l10
         self.observation = l10.observation
-        self.reward = 10
+        self.reward = 0
     # end def
 
     def perform_action(self, action):
@@ -104,7 +105,6 @@ class CheeseMaze(environment.Environment):
         # Save the action.
         self.action = action
 
-        next_loc = self.location
         if action == aUp:
             next_loc = self.location.north
         if action == aRight:
@@ -115,15 +115,15 @@ class CheeseMaze(environment.Environment):
             next_loc = self.location.west
 
         if next_loc is not None:
-            self.location = next_loc
-            self.observation = self.location.observation
-            if self.location == m7:
+            if next_loc == m7:
                 self.reward = 20
+                # self.is_finished = True
                 # reset the environment
                 self.location = l10
-                self.observation = self.location.observation
-                # self.is_finished = True
+                self.observation = l10.observation
             else:
+                self.location = next_loc
+                self.observation = self.location.observation
                 self.reward = 9
         else:
             self.reward = 0
@@ -133,18 +133,10 @@ class CheeseMaze(environment.Environment):
         """ Returns a string indicating the status of the environment.
         """
 
-        action = ''
-        if self.action == aUp:
-            action = 'move up'
-        if self.action == aRight:
-            action = 'move right'
-        if self.action == aDown:
-            action = 'move down'
-        if self.action == aLeft:
-            action = 'move left'
+        action_name = {aUp: "move up", aRight: "move right", aDown: "move down", aLeft: "move left"}
 
-        message = "action: " + action + \
-                  ", observation: " + self.observation + \
+        message = "action: " + action_name[self.action] + \
+                  ", observation: " + str(self.observation) + \
                   ", reward: %d" % self.reward
 
         return message
