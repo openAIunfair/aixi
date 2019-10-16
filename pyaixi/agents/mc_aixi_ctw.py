@@ -446,9 +446,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """ Returns the best action for this agent as determined using the Monte-Carlo Tree Search
             (predictive UCT).
         """
-
-        for action in self.environment.valid_actions:
-            print(self.encode_action(action))
+        
         # Use rhoUCT to search for the next action.
         undo_instance = MC_AIXI_CTW_Undo(self)
         mc_search_tree = monte_carlo_search_tree.MonteCarloSearchNode(decision_node)
