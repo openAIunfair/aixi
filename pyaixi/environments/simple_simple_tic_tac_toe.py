@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Defines an environment for Simple Tic Tac Toe.
+Defines an environment for Simplest Tic Tac Toe.
 """
 
 from __future__ import division
@@ -24,7 +24,7 @@ from pyaixi import environment, util
 simple_tictactoe_observation_enum = util.enum('oEmpty', 'oAgent')
 
 # all rewards add 3
-simple_tictactoe_reward_enum = util.enum(rInvalid=0, rNull=3, rWin=5)
+simple_tictactoe_reward_enum = util.enum(rInvalid=0, rNull=3, rWin=10)
 
 # Define some shorthand notation for ease of reference.
 oEmpty = simple_tictactoe_observation_enum.oEmpty
@@ -51,9 +51,9 @@ class Simple_Tic_Tac_Toe(environment.Environment):
 
         environment.Environment.__init__(self, options=options)
 
-        self.valid_actions = xrange(0, 9)
+        self.valid_actions = xrange(0, 4)
         # Define the acceptable observation values.
-        self.valid_observations = xrange(0, 512)
+        self.valid_observations = xrange(0, 16)
 
         # Define the acceptable reward values.
         self.valid_rewards = list(simple_tictactoe_reward_enum.keys())
@@ -68,8 +68,8 @@ class Simple_Tic_Tac_Toe(environment.Environment):
 
     def set_game(self):
         self.board = {}
-        for r in range(3):
-            for c in range(3):
+        for r in range(2):
+            for c in range(2):
                 # Ensure the row exists.
                 if r not in self.board:
                     self.board[r] = {}
@@ -80,29 +80,13 @@ class Simple_Tic_Tac_Toe(environment.Environment):
 
     def check_win(self):
 
-        # Check row
-        for r in range(3):
-            if (self.board[r][0] != oEmpty and \
-                    self.board[r][0] == self.board[r][1] and \
-                    self.board[r][1] == self.board[r][2]):
-                return True
-
-        # Check col
-        for c in range(3):
-            if (self.board[0][c] != oEmpty and \
-                    self.board[0][c] == self.board[1][c] and \
-                    self.board[1][c] == self.board[2][c]):
-                return True
-
         # Check the diagonals.
         if (self.board[1][1] != oEmpty and \
-                self.board[0][0] == self.board[1][1] and \
-                self.board[1][1] == self.board[2][2]):
+                self.board[0][0] == self.board[1][1]):
             return True
 
-        if (self.board[1][1] != oEmpty and \
-                self.board[0][2] == self.board[1][1] and \
-                self.board[1][1] == self.board[2][0]):
+        if (self.board[0][1] != oEmpty and \
+                self.board[1][0] == self.board[0][1]):
             return True
 
         return False
@@ -110,8 +94,8 @@ class Simple_Tic_Tac_Toe(environment.Environment):
     def compute_observation(self):
 
         self.observation = 0
-        for r in range(3):
-            for c in range(3):
+        for r in range(2):
+            for c in range(2):
                 self.observation = self.board[r][c] + (2 * self.observation)
 
     def perform_action(self, action):
@@ -122,8 +106,8 @@ class Simple_Tic_Tac_Toe(environment.Environment):
 
         # Decode the action
 
-        r = action // 3
-        c = action % 3
+        r = action // 2
+        c = action % 2
 
         # r = 0
         # c = 0
@@ -190,8 +174,8 @@ class Simple_Tic_Tac_Toe(environment.Environment):
                   (self.action, self.observation, self.reward, (self.reward - 3)) + os.linesep
 
         # Display the current state of the board.
-        for r in range(0, 3):
-            for c in range(0, 3):
+        for r in range(0, 2):
+            for c in range(0, 2):
                 b = self.board[r][c]
                 message += "." if b == oEmpty else ("A" if b == oAgent else "x")
             message += os.linesep
