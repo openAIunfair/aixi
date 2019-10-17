@@ -245,7 +245,12 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == percept_update, "An action after a percept"
 
-        return max(self.environment.valid_actions, key=lambda x: self.get_predicted_action_probability(x))
+
+        weights = [self.get_predicted_action_probability(action) for action in self.environment.valid_actions]
+
+        return random.choices(self.environment.valid_actions, weights=weights, k=1)[0]
+
+        # return max(self.environment.valid_actions, key=lambda x: self.get_predicted_action_probability(x))
     # end def
 
     def generate_percept(self):
@@ -255,16 +260,19 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         assert self.last_update == action_update, "A percept after an action"
 
-        best_percept = None
-        best_prob = None
+        # best_percept = None
+        # best_prob = None
+        #
+        # for observation, reward in itertools.product(self.environment.valid_observations, self.environment.valid_rewards):
+        #     if best_percept is None or self.percept_probability(observation, reward) >= best_prob:
+        #         best_percept = observation, reward
+        #         best_prob = self.percept_probability(observation, reward)
+        #
+        # return best_percept
+        iter = [(observation, reward) for observation, reward in itertools.product(self.environment.valid_observations, self.environment.valid_rewards)]
+        weights = [self.percept_probability(observation, reward) for observation, reward in iter]
 
-        for observation, reward in itertools.product(self.environment.valid_observations, self.environment.valid_rewards):
-            if best_percept is None or self.percept_probability(observation, reward) >= best_prob:
-                best_percept = observation, reward
-                best_prob = self.percept_probability(observation, reward)
-
-        return best_percept
-
+        return random.choices(iter, weights=weights, k=1)[0]
     # end def
 
     def generate_percept_and_update(self):
@@ -421,7 +429,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
 
         for i in range(horizon):
-            action = self.generate_action()
+            action = self.generate_random_action()
             self.model_update_action(action)
 
             sum__reward += self.generate_percept_and_update()[1]
@@ -442,11 +450,15 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
     # end def
 
+    def generate_random_action(self):
+
+        return random.choice(self.environment.valid_actions)
+
     def search(self):
         """ Returns the best action for this agent as determined using the Monte-Carlo Tree Search
             (predictive UCT).
         """
-        
+
         # Use rhoUCT to search for the next action.
         undo_instance = MC_AIXI_CTW_Undo(self)
         mc_search_tree = monte_carlo_search_tree.MonteCarloSearchNode(decision_node)

@@ -15,7 +15,7 @@ from pyaixi import environment, util
 
 test_action_enum = util.enum('a0', 'a1', 'a2')
 test_observation_enum = util.enum('o0', 'o1', 'o2')
-test_reward_enum = util.enum(r0=2, r1=3, r2=10)
+test_reward_enum = util.enum(r0=3, r1=1, r2=0)
 
 a0 = test_action_enum.a0
 a1 = test_action_enum.a1
@@ -96,8 +96,12 @@ class test(environment.Environment):
 
         # Flip the coin, set observation and reward appropriately.
         if action == a0:
-            observation = o0
-            reward = r0
+            if random.random() > 0.2:
+                observation = o0
+                reward = r0
+            else:
+                observation = o2
+                reward = r1
         elif action == a1:
             observation = o1
             reward = r1

@@ -96,7 +96,6 @@ class MonteCarloSearchNode:
 
         # The number of times this node has been visited during sampling.
         self.visits = 0
-
     # end def
 
     def sample(self, agent, horizon):
@@ -117,10 +116,10 @@ class MonteCarloSearchNode:
             # if the node is chance node
             observation, r = agent.generate_percept_and_update()
 
-            if observation not in self.children.keys():
-                self.children[observation] = MonteCarloSearchNode(decision_node)
+            if (observation, r) not in self.children.keys():
+                self.children[(observation, r)] = MonteCarloSearchNode(decision_node)
 
-            reward = r + self.children[observation].sample(agent, horizon - 1)
+            reward = r + self.children[(observation, r)].sample(agent, horizon - 1)
 
         elif self.visits == 0:
             # if the node has not been explored
@@ -148,8 +147,6 @@ class MonteCarloSearchNode:
              - `agent`: the agent which is doing the sampling.
         """
 
-        best_action = None
-        max_priority = None
         unexplored_list = []
 
         for action in agent.environment.valid_actions:
@@ -159,30 +156,33 @@ class MonteCarloSearchNode:
                 # a new nod is added to the search tree
 
                 unexplored_list.append(action)
-            else:
 
-                selected_child = self.children[action]
-                # UCB policy in Definition 6
-
-                # m is the remaining search horizon
-                m = agent.horizon
-
-                # each instantaneous reward is bounded in the interval [a,b]
-                interval = agent.environment.maximum_reward() - agent.environment.minimum_reward()
-
-                # a_ucb(h) = argmax....(Definition 6)
-                current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + self.exploration_constant * \
-                                   math.sqrt(math.log(self.visits) / selected_child.visits)
-
-            #Select best action. Use random to avoid preemptive advantage
-                if best_action is None or current_priority + (random.random()-0.5)*0.001 > max_priority:
-                    best_action = action
-                    max_priority = current_priority
-
-        #select action uniformly at random in the unexplored action list.
         if len(unexplored_list) > 0:
             return random.choice(unexplored_list)
 
+        best_action = None
+        max_priority = None
+
+        for action in agent.environment.valid_actions:
+
+            selected_child = self.children[action]
+            # UCB policy in Definition 6
+            # m is the remaining search horizon
+            m = agent.horizon
+
+            # each instantaneous reward is bounded in the interval [a,b]
+            interval = agent.environment.maximum_reward() - agent.environment.minimum_reward()
+
+            # a_ucb(h) = argmax....(Definition 6)
+            current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + self.exploration_constant * \
+                               math.sqrt(math.log(self.visits) / selected_child.visits)
+
+            #Select best action. Use random to avoid preemptive advantage
+            if best_action is None or current_priority + (random.random()-0.5)*0.001 > max_priority:
+                best_action = action
+                max_priority = current_priority
+
+        #select action uniformly at random in the unexplored action list.
         return best_action
     # end def
 # end class
