@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 import os
 import random
 import sys
+import time
 
 # Insert the package's parent directory into the system search path, so that this package can be
 # imported when the aixi.py script is run directly from a release archive.
@@ -65,7 +66,7 @@ class CoinFlip(environment.Environment):
     # Instance attributes.
 
     # Set the default probability for the biased coin, when none is supplied from the options.
-    default_probability = 0.4
+    default_probability = 0.7
 
     # Instance methods.
 

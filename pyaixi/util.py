@@ -35,7 +35,8 @@ def choice(seq):
         (Based on the Python 2.x code for random.choice, and used for deterministic results across
          platforms as Python 3.x changed the way random.choice worked.)
     """
-    return seq[int(random.random() * len(seq))] # raises IndexError if seq is empty
+    return random.choice(seq)
+    # return seq[int(random.random() * len(seq))] # raises IndexError if seq is empty
 # end def
 
 def decode(symbol_list, bit_count):

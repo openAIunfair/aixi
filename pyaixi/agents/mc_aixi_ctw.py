@@ -13,6 +13,7 @@ import os
 import random
 import sys
 import itertools
+import pickle
 
 # Insert the package's parent directory into the system search path, so that this package can be
 # imported when the aixi.py script is run directly from a release archive.
@@ -136,7 +137,14 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
         # (CTW) Context tree representing the agent's model of the environment.
         # Created for this instance.
-        self.context_tree = ctw_context_tree.CTWContextTree(self.depth)
+
+
+        #self.context_tree = ctw_context_tree.CTWContextTree(self.depth)
+
+        df = open('tiger_tree.bin','rb')
+        ctw = pickle.load(df)
+        df.close()
+        self.context_tree = ctw
 
         # The length of the agent's planning horizon.
         # Retrieved from the given options under 'agent-horizon'. Mandatory.
