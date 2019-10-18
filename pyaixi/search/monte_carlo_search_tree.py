@@ -32,6 +32,7 @@ nodetype_enum = util.enum('chance', 'decision')
 chance_node = nodetype_enum.chance
 decision_node = nodetype_enum.decision
 
+playout_hurdle = 1
 
 class MonteCarloSearchNode:
     """ A class to represent a node in the Monte Carlo search tree.
@@ -70,7 +71,7 @@ class MonteCarloSearchNode:
     # Class attributes.
 
     # Exploration constant for the UCB action policy.
-    exploration_constant = math.sqrt(2)
+    exploration_constant = math.sqrt(2.0)
 
     # Unexplored action bias.
     unexplored_bias = 1000000000.0
@@ -116,12 +117,12 @@ class MonteCarloSearchNode:
             # if the node is chance node
             observation, r = agent.generate_percept_and_update()
 
-            if (observation, r) not in self.children.keys():
-                self.children[(observation, r)] = MonteCarloSearchNode(decision_node)
+            if observation not in self.children.keys():
+                self.children[observation] = MonteCarloSearchNode(decision_node)
 
-            reward = r + self.children[(observation, r)].sample(agent, horizon - 1)
+            reward = r + self.children[observation].sample(agent, horizon - 1)
 
-        elif self.visits == 0:
+        elif self.visits <= playout_hurdle:
             # if the node has not been explored
             # pick actions through roll out policy and return the sum of reward
             reward = agent.playout(horizon)
@@ -151,7 +152,7 @@ class MonteCarloSearchNode:
 
         for action in agent.environment.valid_actions:
 
-            if (action not in self.children.keys()) or self.children[action].visits == 0:
+            if action not in self.children or self.children[action].visits == 0:
                 # if this selected child has not been explored
                 # a new nod is added to the search tree
 
@@ -163,9 +164,8 @@ class MonteCarloSearchNode:
         best_action = None
         max_priority = None
 
-        for action in agent.environment.valid_actions:
+        for action, node in self.children.items():
 
-            selected_child = self.children[action]
             # UCB policy in Definition 6
             # m is the remaining search horizon
             m = agent.horizon
@@ -174,8 +174,8 @@ class MonteCarloSearchNode:
             interval = agent.environment.maximum_reward() - agent.environment.minimum_reward()
 
             # a_ucb(h) = argmax....(Definition 6)
-            current_priority = 1.0 * selected_child.mean / (1.0 * m * interval) + self.exploration_constant * \
-                               math.sqrt(math.log(self.visits) / selected_child.visits)
+            current_priority = 1.0 * node.mean / (1.0 * m * interval) + self.exploration_constant * \
+                               math.sqrt(math.log(self.visits) / node.visits)
 
             #Select best action. Use random to avoid preemptive advantage
             if best_action is None or current_priority + (random.random()-0.5)*0.001 > max_priority:

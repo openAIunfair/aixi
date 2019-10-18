@@ -119,7 +119,6 @@ def interaction_loop(agent=None, environment=None, options={}):
         observation = environment.observation
         reward = environment.reward
 
-
         # If we're outside the learning period, stop exploring.
         if learning_period > 0 and cycle > learning_period:
             explore = False
