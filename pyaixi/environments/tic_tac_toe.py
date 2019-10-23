@@ -128,47 +128,9 @@ class Tic_Tac_Toe(environment.Environment):
 
         # Decode the action
 
-        x = action // 4
-        y = action % 4
+        r = action // 3
+        c = action % 3
 
-        r = 0
-        c = 0
-        if x == 0:
-            if y == 0:
-                r, c = 0, 0
-            elif y == 1:
-                r, c = 0, 1
-            elif y == 2:
-                r, c = 1, 0
-            elif y == 3:
-                r, c = 1, 1
-        elif x == 1:
-            if y == 0:
-                r, c = 0, 1
-            elif y == 1:
-                r, c = 0, 2
-            elif y == 2:
-                r, c = 1, 1
-            elif y == 3:
-                r, c = 1, 2
-        elif x == 2:
-            if y == 0:
-                r, c = 1, 0
-            elif y == 1:
-                r, c = 1, 1
-            elif y == 2:
-                r, c = 2, 0
-            elif y == 3:
-                r, c = 2, 1
-        else:
-            if y == 0:
-                r, c = 1, 1
-            elif y == 1:
-                r, c = 1, 2
-            elif y == 2:
-                r, c = 2, 1
-            elif y == 3:
-                r, c = 2, 2
 
         # invalid move, reward and reset game
         if self.board[r][c] != oEmpty:
@@ -200,16 +162,6 @@ class Tic_Tac_Toe(environment.Environment):
         env_random_choice = random.choice(empty_cell)
         self.board[env_random_choice[0]][env_random_choice[1]] = oOpponent
 
-        # The environment makes a random play. official version
-
-        # while (self.board[r][c] != oEmpty):
-        #     # Keep picking board positions at random until we find an unoccupied spot.
-        #     r = random.randrange(0, 3)
-        #     c = random.randrange(0, 3)
-        #     # end while
-        # 
-        #     # If we're here, we've got an unoccupied spot.
-        # self.board[r][c] = oOpponent
 
         # check if opponent win
         if self.check_win():

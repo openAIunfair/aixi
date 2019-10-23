@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 import os
 import random
 import sys
+import time
 
 # Insert the package's parent directory into the system search path, so that this package can be
 # imported when the aixi.py script is run directly from a release archive.

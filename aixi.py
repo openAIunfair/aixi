@@ -25,6 +25,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+import pickle
 
 import six.moves.configparser as configparser
 
@@ -177,6 +178,16 @@ def interaction_loop(agent=None, environment=None, options={}):
 
             print(message)
         # end def
+
+            file_name_tree = file_name+'_tree.bin'
+            try:
+                os.remove(file_name_tree)
+            except OSError:
+                pass
+            ff = open(file_name_tree,'wb')
+            pickle.dump(agent.context_tree,ff)
+            ff.close()
+
 
         # Print environment state if verbose option is true.
         if verbose:

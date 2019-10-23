@@ -135,9 +135,51 @@ class CheeseMaze(environment.Environment):
 
         action_name = {aUp: "move up", aRight: "move right", aDown: "move down", aLeft: "move left"}
 
+        coordinate = {
+            l7: (1, 3),
+            l5: (1, 2),
+            l9: (1, 1),
+            l10: (2, 1),
+            m8: (3, 1),
+            m5: (3, 2),
+            m7: (3, 3),
+            r10: (4, 1),
+            r12: (5, 1),
+            r5: (5, 2),
+            r7: (5, 3)
+        }
+
         message = "action: " + action_name[self.action] + \
                   ", observation: " + str(self.observation) + \
                   ", reward: %d" % self.reward
+        if self.reward == 0:
+            message += ", hitted the wall, maze is unchanged\n"
+        else:
+            maze = ""
+            m_x, m_y = coordinate[self.location]
+            for y in range(5):
+                for x in range(7):
+                    if x % 7 == 0:
+                        maze += '\n'
+                    if m_x == x and m_y == y:
+                        maze += " m "
+                    else:
+                        if x == 3 and y == 3:
+                            maze += " c "
+                        else:
+                            if 0 < x and x < 6 and y == 1:
+                                maze += "   "
+                            else:
+                                if (x == 1 or x == 3 or x == 5) and 1 < y and y < 4:
+                                    maze += "   "
+                                else:
+                                    maze += " w "
+
+            if self.reward == 20:
+                message += ", the agent wins this round! Maze is resetted:\n"
+                message += maze + "\n"
+            else:
+                message += ", maze: \n" + maze + "\n"
 
         return message
     # end def
