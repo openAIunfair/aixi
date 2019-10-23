@@ -29,22 +29,6 @@ r0 = test_reward_enum.r0
 r1 = test_reward_enum.r1
 r2 = test_reward_enum.r2
 
-# test_action_enum = util.enum('a0', 'a1', 'a2')
-# test_observation_enum = util.enum('o0', 'o1', 'o2')
-# test_reward_enum = util.enum(r0=0, r1=1, r2=10)
-#
-# a0 = test_action_enum.a0
-# a1 = test_action_enum.a1
-# a2 = test_action_enum.a2
-#
-# o0 = test_observation_enum.o0
-# o1 = test_observation_enum.o1
-# o2 = test_observation_enum.o2
-#
-# r0 = test_reward_enum.r0
-# r1 = test_reward_enum.r1
-# r2 = test_reward_enum.r2
-
 class test(environment.Environment):
     default_probability = 0.5
 

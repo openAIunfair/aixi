@@ -102,19 +102,13 @@ class Agent:
         """ Returns an action generated uniformly at random.
         """
 
-        return util.choice(self.environment.valid_actions)
-
+        return random.choice(self.environment.valid_actions)
     # end def
 
     def maximum_action(self):
         """ Returns the maximum action the agent can execute.
         """
-
-        # Get the value from the environment.
-        if self.environment is not None:
-            return self.environment.maximum_action()
-        else:
-            return None
+        return self.environment.maximum_action()
         # end if
 
     # end def
@@ -124,12 +118,7 @@ class Agent:
 
             (Called `maxReward` in the C++ version.)
         """
-
-        # Get the value from the environment.
-        if self.environment is not None:
-            return self.environment.maximum_reward()
-        else:
-            return None
+        return self.environment.maximum_reward()
         # end if
     # end def
 
@@ -164,7 +153,6 @@ class Agent:
             WARNING: this method should be overriden by inheriting classes.
         """
         pass
-
     # end def
 
     def search(self):

@@ -166,10 +166,6 @@ def interaction_loop(agent=None, environment=None, options={}):
                    str(time_taken), agent.model_size())
         print(message)
         # TODO: implement
-        file_name = str(environment.__class__).split('.')[-2]
-        f = open(file_name + '.csv', 'a+')
-        f.write(message + '\n')
-        f.close()
 
         # Print to standard output when cycle == 2^n or on verbose option.
         if verbose or (cycle & (cycle - 1)) == 0:
@@ -180,10 +176,6 @@ def interaction_loop(agent=None, environment=None, options={}):
             # end if
 
             print(message)
-
-            f2 = open(file_name + '.txt', 'a+')
-            f2.write(str(agent.average_reward()) + '\n')
-            f2.close()
         # end def
 
         # Print environment state if verbose option is true.

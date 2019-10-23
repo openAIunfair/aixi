@@ -123,13 +123,14 @@ class MonteCarloSearchNode:
             reward = r + self.children[observation].sample(agent, horizon - 1)
 
         elif self.visits <= playout_hurdle:
-            # if the node has not been explored
+            # if the node has not been roll out enough times,
             # pick actions through roll out policy and return the sum of reward
             reward = agent.playout(horizon)
         else:
             action = self.select_action(agent)
             agent.model_update_action(action)
 
+            #Add acion to children if it has not been explored
             if action not in self.children.keys():
                 self.children[action] = MonteCarloSearchNode(chance_node)
 
@@ -150,6 +151,8 @@ class MonteCarloSearchNode:
 
         unexplored_list = []
 
+
+        #Force to explore an unexplored action
         for action in agent.environment.valid_actions:
 
             if action not in self.children or self.children[action].visits == 0:

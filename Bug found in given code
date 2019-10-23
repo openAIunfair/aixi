@@ -1,0 +1,6 @@
+There was a bug found in given code.
+
+util-py line 91
+pad_list = [0 for i in xrange(0, bit_count - bits_length)]
+->
+pad_list = [0 for i in xrange(0, bits_length - bit_count)]

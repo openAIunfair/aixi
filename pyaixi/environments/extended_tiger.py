@@ -64,8 +64,8 @@ class ExtendedTiger(environment.Environment):
         Domain characteristics:
 
         - environment: "extended_tiger"
-        - maximum action: 3 (2 bits)
-        - maximum observation: 2 (2 bits)
+        - maximum action: 4 (2 bits)
+        - maximum observation: 3 (2 bits)
         - maximum reward: 130 (8 bits)
 
         Configuration options:
@@ -76,7 +76,7 @@ class ExtendedTiger(environment.Environment):
     # Instance attributes.
 
     # Set the default probability for the biased coin, when none is supplied from the options.
-    default_probability = 1
+    default_probability = 0.85
 
     # Instance methods.
 

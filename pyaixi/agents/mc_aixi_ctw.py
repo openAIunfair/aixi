@@ -171,7 +171,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return util.decode(symbol_list, self.environment.options['observation-bits'])
-
     # end def
 
     def decode_reward(self, symbol_list):
@@ -181,7 +180,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         """
 
         return util.decode(symbol_list, self.environment.options['reward-bits'])
-
     # end def
 
     def decode_percept(self, symbol_list):
@@ -465,6 +463,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             mc_search_tree.sample(self, self.horizon)
             self.model_revert(undo_instance)
 
+        #Return best action according to their expected reward. Break ties randomly
         return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.0000001)
     # end def
 # end class

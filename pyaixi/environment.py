@@ -86,7 +86,6 @@ class Environment:
         """ Returns the maximum number of bits required to represent an action.
         """
 
-        # Find the largest sized observation.
         return max([util.bits_required(action) for action in self.valid_actions])
     # end def
 
@@ -112,7 +111,6 @@ class Environment:
         """ Returns the maximum possible action.
         """
         return max(self.valid_actions)
-
     # end def
 
     def maximum_observation(self):

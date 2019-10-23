@@ -65,7 +65,7 @@ class CoinFlip(environment.Environment):
     # Instance attributes.
 
     # Set the default probability for the biased coin, when none is supplied from the options.
-    default_probability = 0.4
+    default_probability = 0.8
 
     # Instance methods.
 

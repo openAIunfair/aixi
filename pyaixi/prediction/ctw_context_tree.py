@@ -125,17 +125,18 @@ class CTWContextTreeNode:
         self.log_kt -= self.log_kt_multiplier(symbol)
         
         del_list = []
-        
+
+        #Update ctw tree size if new node is added
         for child in self.children.keys():
             if self.children[child].visits() == 0:
                 self.tree.tree_size -= self.children[child].size()
                 del_list.append(child)
-                
+
+        #Delete empty child
         for child in del_list:
             del self.children[child]
 
         self.update_log_probability()
-
     # end def
 
     def size(self):
@@ -155,7 +156,6 @@ class CTWContextTreeNode:
         self.log_kt += self.log_kt_multiplier(symbol)
         self.update_log_probability()
         self.symbol_count[symbol] += 1
-
     # end def
 
     def update_log_probability(self):
@@ -207,12 +207,12 @@ class CTWContextTreeNode:
 
     def show(self):
         symbols = '0:' + str(self.symbol_count[0]) + '  1:' + str(self.symbol_count[1])
-        childrens = ""
+        children = ""
 
         for symbol, child in self.children.items():
-            childrens += str(symbol) + child.show() + ','
+            children += str(symbol) + child.show() + ','
 
-        return '{' + symbols + '||' + childrens + '}'
+        return '{' + symbols + '||' + children + '}'
 
 
 # end class
@@ -342,14 +342,6 @@ class CTWContextTree:
         self.revert(len(symbol_list))
 
         return math.exp(probability)
-
-        # prob_history = self.root.log_probability
-        # self.update(symbol_list)
-        # prob_sequence = self.root.log_probability
-        # self.revert(len(symbol_list))
-        #
-        # return math.exp(prob_sequence - prob_history)
-
     # end def
 
     def revert(self, symbol_count=1):
