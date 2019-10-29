@@ -8,12 +8,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import copy
 import os
 import random
 import sys
-import itertools
-import pickle
 
 # Insert the package's parent directory into the system search path, so that this package can be
 # imported when the aixi.py script is run directly from a release archive.
@@ -21,14 +18,11 @@ PROJECT_ROOT = os.path.realpath(os.path.join(os.pardir, os.pardir))
 sys.path.insert(0, PROJECT_ROOT)
 
 # Ensure xrange is defined on Python 3.
-from six.moves import xrange
 
-from pyaixi import agent, prediction, search, util
+from pyaixi import agent, util, monte_carlo_search_tree, ctw_context_tree
 
-from pyaixi.agent import update_enum, action_update, percept_update
-from pyaixi.prediction import ctw_context_tree
-from pyaixi.search import monte_carlo_search_tree
-from pyaixi.search.monte_carlo_search_tree import nodetype_enum, chance_node, decision_node
+from pyaixi.agent import action_update, percept_update
+from pyaixi.monte_carlo_search_tree import decision_node
 
 
 class MC_AIXI_CTW_Undo:
@@ -139,12 +133,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
         # Created for this instance.
 
 
-        #self.context_tree = ctw_context_tree.CTWContextTree(self.depth)
-
-        df = open('tiger_tree.bin','rb')
-        ctw = pickle.load(df)
-        df.close()
-        self.context_tree = ctw
+        self.context_tree = ctw_context_tree.CTWContextTree(self.depth)
 
         # The length of the agent's planning horizon.
         # Retrieved from the given options under 'agent-horizon'. Mandatory.
@@ -405,23 +394,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
     # end def
 
-    def percept_probability(self, observation, reward):
-        """ Returns the probability of receiving a particular percept
-            (the given observation and reward) according to the agent's environment model.
-
-            - `observation`: the observation part of the percept we wish to find the likelihood of.
-
-            - `reward`: the reward part of the percept we wish to find the likelihood of.
-        """
-
-        assert self.last_update == action_update, "Percept after action"
-
-        binary_percept = self.encode_percept(observation, reward)
-
-        return self.context_tree.predict(binary_percept)
-
-    # end def
-
     def playout(self, horizon):
         """ Simulate agent/enviroment interaction for a specified amount of steps
             (the given horizon value) where the agent actions are chosen uniformly
@@ -471,6 +443,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             mc_search_tree.sample(self, self.horizon)
             self.model_revert(undo_instance)
 
+        print(self.context_tree.predict([0,0])+self.context_tree.predict([0,1])+self.context_tree.predict([1,0])+self.context_tree.predict([1,1]))
         #Return best action according to their expected reward. Break ties randomly
         return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.0000001)
     # end def

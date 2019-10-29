@@ -32,7 +32,7 @@ nodetype_enum = util.enum('chance', 'decision')
 chance_node = nodetype_enum.chance
 decision_node = nodetype_enum.decision
 
-playout_hurdle = 1
+playout_hurdle = 0
 
 class MonteCarloSearchNode:
     """ A class to represent a node in the Monte Carlo search tree.

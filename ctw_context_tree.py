@@ -188,7 +188,7 @@ class CTWContextTreeNode:
             self.log_probability = self.log_kt
         else:
             child_sum = sum([child.log_probability for child in self.children.values()])
-
+            
             if child_sum <= self.log_kt:
                 self.log_probability = log_half + self.log_kt + math.log(1 + math.exp(child_sum - self.log_kt))
             else:
@@ -360,20 +360,6 @@ class CTWContextTree:
 
             for node in reversed(self.context):
                 node.revert(symbol)
-    # end def
-
-    def revert_history(self, symbol_count=1):
-        """ Shrinks the history without affecting the context tree.
-        """
-
-        assert symbol_count > 0, "The given symbol count should be greater than 0."
-        history_length = len(self.history)
-        assert history_length >= symbol_count, "The given symbol count must be greater than the history length."
-
-        new_size = history_length - symbol_count
-        self.history = self.history[:new_size]
-
-    # end def
 
     def size(self):
         """ Returns the number of nodes in the context tree.
@@ -400,6 +386,7 @@ class CTWContextTree:
                 node.update(symbol)
 
             self.update_history([symbol])
+            
     # end def
 
     def update_context(self):
@@ -412,7 +399,7 @@ class CTWContextTree:
         self.context = [self.root]
         parent = self.root
 
-        for i in range(min(self.depth, len(self.history))):
+        for i in range(len(self.history)):
 
             symbol = self.history[-i - 1]
 
@@ -424,6 +411,9 @@ class CTWContextTree:
 
             parent = parent.children[symbol]
             self.context.append(parent)
+            
+            if i == self.depth-1:
+                break
             # end def
 
     def update_history(self, symbol_list):
