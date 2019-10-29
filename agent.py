@@ -8,10 +8,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import copy
 import random
 
-from . import util
+import util
 
 # Define a enumeration to represent what type of environment update has been performed.
 update_enum = util.enum('action_update', 'percept_update')

@@ -20,48 +20,6 @@ log_half = math.log(0.5)
 
 
 class CTWContextTreeNode:
-    """ The CTWContextTreeNode class represents a node in an action-conditional context tree.
-        The purpose of each node is to calculate the weighted probability of observing
-        a particular bit sequence.
-        In particular, denote by `n` the current node, by `n0` and `n1`  the child nodes,
-        by `h_n` the subsequence of the history relevant to node `n`, and by `a`
-        and `b` the number of zeros and ones in `h_n`.
-        Then the weighted block probability of observing `h_n` at node `n` is given by
-          P_w^n(h_n) :=
-
-            Pr_kt(h_n)                        (if n is a leaf node)
-            1/2 Pr_kt(h_n) +
-            1/2 P_w^n0(h_n0) P_w^n1(h_n1)     (otherwise)
-        where `Pr_kt(h_n) = Pr_kt(a, b)` is the Krichevsky-Trofimov (KT) estimator defined by the relations
-          Pr_kt(a + 1, b) = (a + 1/2)/(a + b + 1) Pr_kt(a, b)
-          Pr_kt(a, b + 1) = (b + 1/2)/(a + b + 1) Pr_kt(a, b)
-        and the base case
-          Pr_kt(0, 0) := 1
-        In both relations, the fraction is referred to as the update multiplier and corresponds to the
-        probability of observing a zero (first relation) or a one (second relation) given we have seen
-        `a` zeros and `b` ones.
-        Due to numerical issues, the implementation uses logarithmic probabilities
-        `log(P_w^n(h_n))` and `log(Pr_kt(h_n)` rather than normal probabilities.
-        These probabilities are recalculated during updates (`update()`)
-        and reversions (`revert()`) to the context tree that involves the node.
-        - The KT estimate is accessed and stored using `log_kt`.
-          It is updated from the previous estimate by multiplying with the update multiplier as
-          calculated by `log_kt_multiplier()`.
-        - The weighted probability is access and stored using `log_probability`.
-          It is recalculated by `update_log_probability()`.
-        In order to calculate these probabilities, `CTWContextTreeNode` also stores:
-        - Links to child nodes: `children`
-        - The number of symbols (zeros and ones) in the history subsequence relevant to the
-          node: `symbol_count`.
-        The `CTWContextTreeNode` class is tightly coupled with the `ContextTree` class.
-        Briefly, the `ContextTree` class:
-        - Creates and deletes nodes.
-        - Tells the appropriate nodes to update/revert their probability estimates.
-        - Samples actions and percepts from the probability distribution specified
-          by the nodes.
-    """
-
-    # Instance methods.
 
     def __init__(self, tree=None):
         """ Construct a node of the context tree.
@@ -83,6 +41,7 @@ class CTWContextTreeNode:
 
         # The count of the symbols in the history subsequence relevant to this node.
         self.symbol_count = {0: 0, 1: 0}
+
 
     # end def
 
@@ -159,30 +118,6 @@ class CTWContextTreeNode:
     # end def
 
     def update_log_probability(self):
-        """ This method calculates the logarithm of the weighted probability for this node.
-            Assumes that `log_kt` and `log_probability` is correct for each child node.
-              log(P^n_w) :=
-                  log(Pr_kt(h_n)            (if n is a leaf node)
-                  log(1/2 Pr_kt(h_n)) + 1/2 P^n0_w x P^n1_w)
-                                            (otherwise)
-            and stores the value in log_probability.
-
-            Because of numerical issues, the implementation works directly with the
-            log probabilities `log(Pr_kt(h_n)`, `log(P^n0_w)`,
-            and `log(P^n1_w)` rather than the normal probabilities.
-            To compute the second case of the weighted probability, we use the identity
-                log(a + b) = log(a) + log(1 + exp(log(b) - log(a)))       a,b > 0
-            to rearrange so that logarithms act directly on the probabilities:
-                log(1/2 Pr_kt(h_n) + 1/2 P^n0_w P^n1_w) =
-                    log(1/2) + log(Pr_kt(h_n))
-                      + log(1 + exp(log(P^n0_w) + log(P^n1_w)
-                                    - log(Pr_kt(h_n)))
-                    log(1/2) + log(P^n0_w) + log(P^n1_w)
-                      + log(1 + exp(log(Pr_kt(h_n)
-                                           - log(P^n0_w) - log(P^n1_w)))
-            In order to avoid overflow problems, we choose the formulation for which
-            the argument of the exponent `exp(log(b) - log(a))` is as small as possible.
-        """
 
         if not self.children:
             self.log_probability = self.log_kt
@@ -219,27 +154,6 @@ class CTWContextTreeNode:
 
 
 class CTWContextTree:
-    """ The high-level interface to an action-conditional context tree.
-        Most of the mathematical details are implemented in the CTWContextTreeNode class, which is used to
-        represent the nodes of the tree.
-        CTWContextTree stores a reference to the root node of the tree (`root`), the history of
-        updates to the tree (`history`), and the maximum depth of the tree (`depth`).
-        It is primarily concerned with calling the appropriate functions in the appropriate nodes
-        in order to deliver certain functionality:
-        - `update(symbol_or_list_of_symbols)` updates the tree and the history
-          after the agent has observed new percepts.
-        - `update_history(symbol_or_list_of_symbols)` updates just the history
-          after the agent has executed an action.
-        - `revert()` reverts the last update to the tree.
-        - `revert_history()` deletes the recent history.
-        - `predict()` predicts the probability of future outcomes.
-        - `generate_random_symbols_and_update()` samples a sequence from the
-           context tree, updating the tree with each symbol as it is sampled.
-        - `generate_random_symbols()` samples a sequence of a specified length,
-           updating the tree with each symbol as it is sampled, then reverting all the
-           updates so that the tree is in the same state as it was before the
-           sampling.
-    """
 
     def __init__(self, depth):
         """ Create a context tree of specified maximum depth.
@@ -264,6 +178,8 @@ class CTWContextTree:
 
         # The size of this tree.
         self.tree_size = 1
+
+        self.history_size = 0
 
     # end def
 
@@ -353,8 +269,8 @@ class CTWContextTree:
         assert symbol_count >= 0, "The given symbol count should be greater than 0"
 
         for i in range(symbol_count):
-            symbol = self.history[-1]
-            self.history = self.history[:-1]
+            symbol = self.history.pop(0)
+            self.history_size -= 1
 
             self.update_context()
 
@@ -379,9 +295,6 @@ class CTWContextTree:
         for symbol in symbol_list:
             self.update_context()
 
-            assert len(self.context) - 1 <= len(self.history), "History size should be greater than context size"
-            assert len(self.context) - 1 <= self.depth, "context size should be smaller or equal to depth"
-
             for node in reversed(self.context):
                 node.update(symbol)
 
@@ -401,7 +314,7 @@ class CTWContextTree:
 
         for i in range(len(self.history)):
 
-            symbol = self.history[-i - 1]
+            symbol = self.history[i]
 
             if symbol not in parent.children:
                 child = CTWContextTreeNode(tree=self)
@@ -422,11 +335,10 @@ class CTWContextTree:
         """
 
         # Ensure that we have a list, by making this a list if it's a single symbol.
-        if type(symbol_list) != list:
-            symbol_list = [symbol_list]
-        # end if
 
-        self.history += symbol_list
+        for symbol in symbol_list:
+            self.history = [symbol] + self.history
+            self.history_size += 1
 
     # end def
 

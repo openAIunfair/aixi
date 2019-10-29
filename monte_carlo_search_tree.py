@@ -18,8 +18,7 @@ import sys
 PROJECT_ROOT = os.path.realpath(os.path.join(os.pardir, os.pardir))
 sys.path.insert(0, PROJECT_ROOT)
 
-from pyaixi import util
-
+import util
 
 # An enumeration type used to specify the type of Monte Carlo search node.
 # Chance nodes represent a set of possible observation

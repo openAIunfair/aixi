@@ -5,8 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import sys
-from pyaixi import util
+import util
 
 
 class Environment:
@@ -42,7 +41,8 @@ class Environment:
         # Define the acceptable reward values.
         self.valid_rewards = []
 
-    # end def
+    def set_options(self, options):
+        self.options = options
 
     def __unicode__(self):
         """ Returns a string representation of this environment instance.

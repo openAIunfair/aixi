@@ -19,10 +19,13 @@ sys.path.insert(0, PROJECT_ROOT)
 
 # Ensure xrange is defined on Python 3.
 
-from pyaixi import agent, util, monte_carlo_search_tree, ctw_context_tree
+import monte_carlo_search_tree
+import util
+import ctw_context_tree
+import agent
 
-from pyaixi.agent import action_update, percept_update
-from pyaixi.monte_carlo_search_tree import decision_node
+from agent import action_update, percept_update
+from monte_carlo_search_tree import decision_node
 
 
 class MC_AIXI_CTW_Undo:
@@ -101,7 +104,7 @@ class MC_AIXI_CTW_Agent(agent.Agent):
 
     # Instance methods.
 
-    def __init__(self, environment=None, options=None):
+    def __init__(self, environment=None, options=None, ctw=None):
         """ Construct a MC-AIXI-CTW learning agent from the given configuration values and the environment.
 
              - `environment` is an instance of the pyaixi.Environment class that the agent with interact with.
@@ -127,13 +130,13 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             options = {}
         assert 'ct-depth' in options, \
             "The required 'ct-depth' context tree depth option is missing from the given options."
+
         self.depth = int(options['ct-depth'])
 
-        # (CTW) Context tree representing the agent's model of the environment.
-        # Created for this instance.
-
-
-        self.context_tree = ctw_context_tree.CTWContextTree(self.depth)
+        if ctw is None:
+            self.context_tree = ctw_context_tree.CTWContextTree(self.depth)
+        else:
+            self.context_tree = ctw
 
         # The length of the agent's planning horizon.
         # Retrieved from the given options under 'agent-horizon'. Mandatory.
@@ -266,10 +269,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
     # end def
 
     def generate_percept_and_update(self):
-        """ Returns a percept (an observation, reward pair) distributed according to the agent's history
-            statistics, after updating the context tree with it.
-        """
-
         assert self.last_update == action_update, "Can only perform an percept update after an action update"
 
         observation, reward = self.generate_percept()
@@ -280,12 +279,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
     # end def
 
     def get_predicted_action_probability(self, action):
-        """ Returns the probability of selecting a particular action according to the
-            agent's internal model of its own behaviour.
-
-            - `action`: the action we wish to find the likelihood of.
-        """
-
         binary_action = self.encode_action(action)
 
         return self.context_tree.predict(binary_action)
@@ -317,10 +310,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
     # end def
 
     def model_revert(self, undo_instance):
-        """ Revert the agent's internal model of the world to that of a previous time cycle,
-            using the given undo class instance.
-        """
-
         revert_size = self.history_size() - undo_instance.history_size
 
         self.age = undo_instance.age
@@ -339,13 +328,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
     # end def
 
     def model_update_action(self, action):
-        """ Update the agent's model of the world with a percept from the
-            environment.
-
-            - `observation`: the observation that was received.
-            - `reward`: the reward that was received.
-        """
-
         # The last update must have been a percept, else this action update is invalid.
         assert self.last_update == percept_update, "Can only perform an action update after a percept update."
 
@@ -404,7 +386,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             - `horizon`: the number of complete action/percept steps
                          (the search horizon) to simulate.
         """
-
         sum__reward = 0.0
 
         for i in range(horizon):
@@ -443,7 +424,6 @@ class MC_AIXI_CTW_Agent(agent.Agent):
             mc_search_tree.sample(self, self.horizon)
             self.model_revert(undo_instance)
 
-        print(self.context_tree.predict([0,0])+self.context_tree.predict([0,1])+self.context_tree.predict([1,0])+self.context_tree.predict([1,1]))
         #Return best action according to their expected reward. Break ties randomly
         return max(mc_search_tree.children.keys(), key=lambda x: mc_search_tree.children[x].mean+random.random()*0.0000001)
     # end def
